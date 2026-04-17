@@ -1,0 +1,86 @@
+# bikeped - Configuration
+# All parameters for the pedestrian-cyclist collision warning system.
+
+video:
+  use_webcam: true
+  file_path: "06022025_19.avi"
+  process_every_k_frames: 1
+
+preprocessing:
+  pad_size: 3840
+  crop_size: 3500
+
+camera:
+  height: 3.6576  # 12 feet (deployment height)
+  fov: 197.90
+  radius: 1750
+  pitch_deg: 0
+  cx: 1752.69
+  cy: 1804.54
+  # Projection model (config name -> model name -> formula):
+  #   "linear"        -> equidistant   -> r = f * theta
+  #   "equalarea"     -> equisolid     -> r = 2f * sin(theta/2)
+  #   "stereographic" -> stereographic -> r = 2f * tan(theta/2)
+  #   "orthographic"  -> orthographic  -> r = f * sin(theta)
+  projection: "linear"
+  # Optional Kannala-Brandt-style radial distortion (linear/equidistant only):
+  #   r = f * (theta + k1*theta^3 + k2*theta^5)
+  # Both default to 0; set from camera_calibration.json when calibrating
+  # with --fit-distortion.
+  k1: 0.0
+  k2: 0.0
+  # Camera latency compensation: number of frames of measured latency
+  # to compensate via first-order kinematic prediction (0 = disabled).
+  # At 30 fps, 1 frame = 33 ms. Set to measured_latency_ms / 33.
+  latency_frames: 0
+
+detection:
+  model_path: "yolo11x.engine"
+  confidence: 0.1
+  input_size: 1280
+  valid_classes: [0, 1, 2, 3, 5, 7, 9, 31, 36, 37, 16]
+  tracker: "bytetrack.yaml"
+
+decision:
+  bike_memory_frames: 58
+  prox_min: 1.9
+  prox_max: 24.8
+  prox_speed_min: 0.147
+  lookback_frames: 2
+  max_range: 25
+  max_object_age: 10
+  # Speed-adaptive proximity: d_max expands to stopping_distance when
+  # the cyclist is faster than this threshold. Set to 0 to disable.
+  speed_adaptive: true
+  cyclist_reaction_s: 0.84   # Martin & Bigazzi 2025, 85th pctl
+  cyclist_decel_ms2: 1.96   # Martin & Bigazzi 2025, 85th pctl
+
+tracking:
+  history_frames: 5
+  min_track_points: 4
+  speed_window: 4
+
+feedback:
+  blinking: true
+  go_signal: true
+  sound_threshold: 60
+
+mqtt:
+  enabled: true
+  broker: "test.mosquitto.org"
+  port: 1883
+  topic: "bikeped/intersection/tracks"
+  username: null
+  password: null
+  client_id: "bikeped_tracker"
+  qos: 0
+  publish_interval: 1
+
+latency:
+  enabled: false               # set true to collect per-frame latency data
+  save_path: "latency_data.npy"
+  save_interval_frames: 500    # save checkpoint every N processed frames
+  warmup_frames: 30            # discard first N frames (model warmup)
+
+debug: false
+verbose: false

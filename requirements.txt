@@ -1,0 +1,15 @@
+# bikeped runtime requirements for reproducing the paper results.
+# Install with:  pip install -r requirements.txt
+#
+# The deployed live system (mqtt_bridge.py) is not included in this
+# repository; it additionally needs TensorRT, ultralytics, paho-mqtt,
+# busylight, and play_sounds on an NVIDIA Jetson Orin.
+
+numpy>=1.24
+scipy>=1.11
+matplotlib>=3.7
+pyyaml>=6.0
+opencv-python>=4.8
+
+# Optional: API docs (run `python build_docs.py`).
+# pdoc>=14.0

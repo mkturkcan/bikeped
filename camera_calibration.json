@@ -1,0 +1,17 @@
+{
+  "model": "equidistant",
+  "cx": 1752.69,
+  "cy": 1804.54,
+  "focal_length": 1013.31,
+  "fov_deg": 197.9,
+  "radius_px": 1750.0,
+  "k1": 0.0,
+  "k2": 0.0,
+  "rms_error_px": 4.6334,
+  "num_frames": 42,
+  "num_points": 1470,
+  "frame_width": 3500,
+  "frame_height": 3500,
+  "pad_size": 3840,
+  "crop_size": 3500
+}
