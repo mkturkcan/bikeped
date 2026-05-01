@@ -1,0 +1,19 @@
+# YOLO model cache + auto-exported TensorRT engines
+models/
+*.engine
+*.pt
+*.onnx
+
+# Latency profiler output
+latency_data*.npy
+
+# Local config overrides
+config.local.yaml
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor
+.vscode/
+.idea/

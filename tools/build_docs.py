@@ -24,7 +24,16 @@ import webbrowser
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "docs"
+# When build_docs.py lives in tools/, the importable modules sit one level
+# up at the repo root. This script auto-detects either layout: if the
+# common reproduction script (run_experiments.py) is in HERE, treat HERE
+# as the project root; otherwise look at the parent directory.
+PROJECT_ROOT = HERE if (HERE / "run_experiments.py").exists() else HERE.parent
+OUT = PROJECT_ROOT / "docs"
+
+# Subfolders to add to sys.path so flat ``import name`` works for modules
+# that have been moved into category folders (calibration/, tools/, ...).
+EXTRA_DIRS = ["calibration", "tools"]
 
 # Modules to document. Order here controls left-sidebar order in pdoc. Any
 # module that fails to import (e.g. missing the CARLA or ultralytics package)
@@ -36,21 +45,30 @@ MODULES = [
     "generate_figures",
     "run_experiments",
     "run_height_pitch_sweep",
-    "eval_models",
-    "calibrate_fisheye",
-    "capture_calibration",
-    "compare_fisheye_models",
     "crosswalk_analysis",
     "carla_scenario",
-    "carla_find_crosswalks",
-    "latency_report",
+    "calibrate_fisheye",        # in calibration/
+    "capture_calibration",      # in calibration/
+    "compare_fisheye_models",   # in calibration/
+    "eval_models",              # in tools/
+    "latency_report",           # in tools/
+    "carla_find_crosswalks",    # in tools/
 ]
+
+
+def _ensure_search_path():
+    """Put the project root and known subfolders on sys.path so importlib can
+    resolve every documented module regardless of layout."""
+    for p in [PROJECT_ROOT] + [PROJECT_ROOT / d for d in EXTRA_DIRS]:
+        sp = str(p)
+        if p.is_dir() and sp not in sys.path:
+            sys.path.insert(0, sp)
 
 
 def importable_modules(names):
     """Return only the modules that can be imported in the current environment."""
     out, skipped = [], []
-    sys.path.insert(0, str(HERE))
+    _ensure_search_path()
     for name in names:
         if importlib.util.find_spec(name) is None:
             skipped.append((name, "not found on sys.path"))
@@ -132,7 +150,7 @@ def main() -> int:
         print("No importable modules to document.", file=sys.stderr)
         return 1
 
-    tmpl = HERE / ".pdoc_template"
+    tmpl = PROJECT_ROOT / ".pdoc_template"
     write_theme(tmpl)
 
     cmd = pdoc_cmd() + [
@@ -147,12 +165,21 @@ def main() -> int:
         cmd += ["-o", str(OUT)]
     cmd += modules
 
+    # Make the subfolder modules importable inside the pdoc subprocess.
+    import os
+    env = os.environ.copy()
+    extra_paths = [str(PROJECT_ROOT)] + [str(PROJECT_ROOT / d) for d in EXTRA_DIRS]
+    env["PYTHONPATH"] = os.pathsep.join(extra_paths +
+                                        [env.get("PYTHONPATH", "")]).rstrip(os.pathsep)
     try:
-        subprocess.run(cmd, cwd=HERE, check=True)
+        subprocess.run(cmd, cwd=PROJECT_ROOT, check=True, env=env)
     except subprocess.CalledProcessError as e:
         return e.returncode
 
     if not args.serve:
+        # Drop a .nojekyll marker so GitHub Pages serves the pdoc HTML
+        # untouched (otherwise Jekyll strips files that start with "_").
+        (OUT / ".nojekyll").touch()
         idx = OUT / "index.html"
         print(f"\nDocumentation built at: {OUT}")
         print(f"Open {idx} in a browser.")

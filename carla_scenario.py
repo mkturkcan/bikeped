@@ -361,16 +361,29 @@ class CarlaScenarioRunner:
                     if len(bp_candidates) == 0:
                         bp_candidates = bp_lib.filter('walker.pedestrian.*')
             else:
-                bp_candidates = bp_lib.filter(self.bike_model)
-                if len(bp_candidates) == 0:
-                    # Fallback chain
-                    for fallback in ['vehicle.diamondback.century',
-                                     'vehicle.bh.crossbike',
-                                     'vehicle.*bicycle*',
-                                     'vehicle.vespa.zx125']:
-                        bp_candidates = bp_lib.filter(fallback)
-                        if len(bp_candidates) > 0:
-                            break
+                if self.bike_model == 'random':
+                    # Pool every bike-like blueprint; pick uniformly per agent.
+                    pool = []
+                    for pat in ('vehicle.diamondback.century',
+                                'vehicle.bh.crossbike',
+                                'vehicle.gazelle.omafiets',
+                                'vehicle.vespa.zx125'):
+                        pool.extend(bp_lib.filter(pat))
+                    if not pool:
+                        pool = list(bp_lib.filter('vehicle.*bicycle*'))
+                    bp_candidates = ([pool[_rng.randint(0, len(pool) - 1)]]
+                                     if pool else [])
+                else:
+                    bp_candidates = bp_lib.filter(self.bike_model)
+                    if len(bp_candidates) == 0:
+                        # Fallback chain
+                        for fallback in ('vehicle.diamondback.century',
+                                         'vehicle.bh.crossbike',
+                                         'vehicle.*bicycle*',
+                                         'vehicle.vespa.zx125'):
+                            bp_candidates = bp_lib.filter(fallback)
+                            if len(bp_candidates) > 0:
+                                break
 
             if len(bp_candidates) == 0:
                 print(f"    Warning: no blueprint found for {ag_def['type']}, skipping")
@@ -653,8 +666,9 @@ def main():
                         help='Use wheelchair pedestrian (walker.pedestrian.0028 with wheelchair attribute)')
     parser.add_argument('--bike-model', type=str, default='vehicle.diamondback.century',
                         help='Bike blueprint (default: vehicle.diamondback.century). '
-                             'Options: vehicle.bh.crossbike, vehicle.gazelle.omafiets, '
-                             'vehicle.vespa.zx125')
+                             'Use "random" to pick uniformly per bike from the full pool '
+                             '(diamondback.century, bh.crossbike, gazelle.omafiets, vespa.zx125), '
+                             'or a specific blueprint id.')
     parser.add_argument('--video', action='store_true',
                         help='Also create MP4 from saved frames')
     parser.add_argument('--output', type=str, default='carla_output',

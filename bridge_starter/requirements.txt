@@ -1,0 +1,19 @@
+# bikeped bridge starter — runtime requirements
+# Install with:  pip install -r requirements.txt
+
+numpy>=1.24
+opencv-python>=4.8
+pyyaml>=6.0
+
+# Detection backbone (downloads YOLO weights from Hugging Face on first run).
+ultralytics>=8.3
+huggingface_hub>=0.24
+
+# MQTT publishing (skip if you only need local visualization).
+paho-mqtt>=1.6
+
+# Optional: audio cues. The script silently skips audio if this is missing.
+# play-sounds>=0.0.4
+
+# For TensorRT export of the YOLO model on a Jetson / NVIDIA workstation:
+# install your platform-specific tensorrt + torch_tensorrt build separately.
