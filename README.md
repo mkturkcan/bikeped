@@ -1,4 +1,4 @@
-<h1 align="center">bikeped</h1>
+<h1 align="center">BIKEPED</h1>
 
 <p align="center">
   <strong>Real-time pedestrian–cyclist collision warning for urban intersections.</strong><br/>
