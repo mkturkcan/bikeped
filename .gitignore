@@ -206,6 +206,10 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# bikeped: pdoc template staging dir (auto-generated, never committed).
-# NOTE: docs/ IS committed and served by GitHub Pages — do not ignore it.
+# bikeped: docs build artifacts.
+# - docs/      IS committed and served by GitHub Pages.
+# - docs_src/  is regenerated each build (README → index.md + per-module stubs).
+# - mkdocs.yml is regenerated each build with the computed nav.
+docs_src/
+mkdocs.yml
 .pdoc_template/

@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bikeped - Intersection Safety Simulation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f2f3f6;--panel:#ffffff;--panel-alt:#f8f9fb;
+  --border:#dfe2e8;--text:#2d3142;--text-mid:#5c6070;--text-dim:#8e93a4;
+  --accent:#2563eb;--accent-bg:#eff4ff;
+  --red:#dc2626;--red-bg:#fef2f2;--green:#16a34a;--green-bg:#f0fdf4;
+  --orange:#ea580c;--orange-bg:#fff7ed;--blue:#3b82f6;--blue-bg:#eff6ff;
+}
+
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;height:100vh;overflow:hidden}
+
+.header{height:52px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{font-family:'Source Serif 4',serif;font-size:15px;font-weight:600}
+.header-logo span{color:var(--accent)}
+.header-sep{width:1px;height:20px;background:var(--border)}
+.header-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:.3px}
+.header-right{display:flex;align-items:center;gap:16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
+.status-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--panel-alt);border:1px solid var(--border);border-radius:20px;font-size:10px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+.main{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 52px)}
+.panel{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
+.panel:last-child{border-right:none}
+
+.panel-header{padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+.panel-badge{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500}
+.badge-idle{background:var(--blue-bg);color:var(--blue)}
+.badge-safe{background:var(--green-bg);color:var(--green)}
+.badge-warn{background:var(--orange-bg);color:var(--orange)}
+.badge-alert{background:var(--red-bg);color:var(--red)}
+
+.panel-content{flex:1;position:relative;overflow:hidden;background:var(--panel-alt)}
+
+.pipe-bar{padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:4px;align-items:center;overflow-x:auto}
+.pipe-bar-label{font-size:10px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-right:6px;white-space:nowrap}
+.pipe-btn,.scn-btn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;background:var(--panel-alt);border:1px solid var(--border);border-radius:4px;color:var(--text-mid);cursor:pointer;transition:all .15s;white-space:nowrap}
+.pipe-btn:hover,.scn-btn:hover{border-color:var(--accent);color:var(--text)}
+.pipe-btn.active,.scn-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:500}
+
+.scenario-bar{padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.scenario-info{padding:6px 14px;font-size:11px;color:var(--text-mid);background:var(--panel);border-bottom:1px solid var(--border);font-style:italic}
+
+.sim-controls{padding:8px 12px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
+.sim-controls button{font-family:'DM Mono',monospace;font-size:11px;padding:4px 14px;background:var(--panel-alt);border:1px solid var(--border);border-radius:4px;color:var(--text);cursor:pointer;transition:all .15s}
+.sim-controls button:hover{border-color:var(--accent)}
+.sim-controls button.playing{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.sim-controls input[type="range"]{width:70px;accent-color:var(--accent)}
+.telem{margin-left:auto;display:flex;gap:14px}
+.telem span:first-child{color:var(--text-dim)}
+.telem span:last-child{color:var(--text);font-weight:500}
+
+.cam-bar{padding:6px 12px;background:var(--panel);border-top:1px solid var(--border);display:flex;gap:14px;align-items:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);flex-wrap:wrap}
+.cam-bar label{display:flex;align-items:center;gap:3px}
+.cam-bar input[type="range"]{width:60px;accent-color:var(--accent)}
+.cam-preset-group{display:flex;gap:4px;align-items:center;margin-right:4px}
+.cam-preset-label{font-size:10px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.cam-preset{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;background:var(--panel-alt);border:1px solid var(--border);border-radius:4px;color:var(--text-mid);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cam-preset:hover{border-color:var(--accent);color:var(--text)}
+.cam-preset.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:500}
+
+.timeline-bar{
+  padding:6px 12px;background:var(--panel);border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);
+}
+.timeline-track{
+  flex:1;height:20px;position:relative;cursor:pointer;
+  background:var(--panel-alt);border:1px solid var(--border);border-radius:4px;
+  overflow:hidden;
+}
+.timeline-fill{
+  position:absolute;left:0;top:0;bottom:0;
+  background:var(--accent-bg);border-right:2px solid var(--accent);
+  transition:width 0.05s linear;pointer-events:none;
+}
+.timeline-agents{
+  position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;
+}
+.timeline-marker{
+  position:absolute;top:2px;width:2px;bottom:2px;border-radius:1px;
+  opacity:0.7;
+}
+.timeline-label{white-space:nowrap;min-width:38px;text-align:right;color:var(--text)}
+.timeline-dur{white-space:nowrap;min-width:38px;color:var(--text-dim)}
+.loop-indicator{
+  font-size:13px;cursor:pointer;opacity:0.4;transition:opacity 0.15s;user-select:none;
+}
+.loop-indicator.active{opacity:1;color:var(--accent)}
+
+canvas{display:block}
+
+.unc-bar{padding:8px 12px;background:var(--panel);border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);overflow:hidden;transition:max-height .2s}
+.unc-bar.collapsed{max-height:24px}
+.unc-toggle{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;background:var(--panel-alt);border:1px solid var(--border);border-radius:4px;color:var(--text-mid);cursor:pointer;transition:all .15s}
+.unc-toggle:hover{border-color:var(--accent);color:var(--text)}
+.unc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 14px;margin-top:6px}
+.unc-section{font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:.5px;font-size:9px;margin-bottom:2px;grid-column:span 3;border-top:1px solid var(--border);padding-top:4px}
+.unc-section:first-child{border-top:none;padding-top:0}
+.unc-grid label{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.unc-grid input[type="range"]{width:50px;accent-color:var(--accent)}
+.unc-grid .unc-val{color:var(--text);font-weight:500;min-width:30px;text-align:right}
+
+.math-bar{padding:8px 12px;background:var(--panel);border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);overflow:hidden;transition:max-height .2s}
+.math-bar.collapsed{max-height:24px}
+.math-content{margin-top:6px;white-space:pre;line-height:1.6;overflow-x:auto;overflow-y:auto;max-height:320px;font-size:9px}
+.math-content .mh{color:var(--text);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.math-content .mf{color:var(--accent)}
+.math-content .mv{color:var(--text);font-weight:500}
+.math-content .mw{color:var(--orange);font-weight:500}
+.math-content .me{color:var(--red);font-weight:500}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">bikeped</div>
+    <div class="header-sep"></div>
+    <div class="header-sub">Intersection Safety Simulation</div>
+  </div>
+  <div class="header-right">
+    <span id="frame-counter">frame 0</span>
+    <span id="sim-time">t = 0.00 s</span>
+    <div class="status-pill"><div class="status-dot" id="status-dot"></div><span id="status-text">IDLE</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Decision Pipeline</span>
+      <span class="panel-badge badge-idle" id="pipeline-badge">IDLE</span>
+    </div>
+    <div class="pipe-bar" id="pipe-bar"><span class="pipe-bar-label">Pipeline:</span></div>
+    <div class="panel-content"><canvas id="flow-canvas"></canvas></div>
+    <div class="cam-bar">
+      <div class="cam-preset-group">
+        <span class="cam-preset-label">Setup:</span>
+        <button class="cam-preset active" data-preset="pole">Single Pole</button>
+        <button class="cam-preset" data-preset="cross">Cross-Cam</button>
+        <button class="cam-preset" data-preset="center">Center</button>
+        <button class="cam-preset" data-preset="overhead">Overhead</button>
+      </div>
+      <div class="cam-preset-group" id="cam-selector">
+        <span class="cam-preset-label">Cam:</span>
+        <div id="cam-selector-btns" style="display:flex;gap:4px"></div>
+        <button class="cam-preset" id="cam-add-btn" title="Add camera">+</button>
+        <button class="cam-preset" id="cam-remove-btn" title="Remove camera">&minus;</button>
+      </div>
+      <label>X <input type="range" id="cam-x" min="-15" max="15" value="5" step="0.5"><span id="cam-x-val">5</span>m</label>
+      <label>Y <input type="range" id="cam-y" min="-15" max="15" value="-13" step="0.5"><span id="cam-y-val">-13</span>m</label>
+      <label>H <input type="range" id="cam-h" min="1" max="8" value="5.5" step="0.1"><span id="cam-h-val">5.5</span>m</label>
+      <label>FOV <input type="range" id="cam-fov" min="120" max="220" value="220" step="5"><span id="cam-fov-val">220</span>&deg;</label>
+      <label>Hdg <input type="range" id="cam-hdg" min="0" max="359" value="90" step="1"><span id="cam-hdg-val">90</span>&deg;</label>
+    </div>
+    <div class="unc-bar collapsed" id="unc-bar">
+      <button class="unc-toggle" id="unc-toggle">Uncertainty Parameters &#9654;</button>
+      <div class="unc-grid" id="unc-grid">
+        <div class="unc-section">YOLO Detection (AP/AR @IoU=0.50:0.95)</div>
+        <label>AR<sub>sm</sub> <input type="range" id="unc-ar-sm" min="0.1" max="1" value="0.514" step="0.01"><span class="unc-val" id="unc-ar-sm-val">0.51</span></label>
+        <label>AR<sub>md</sub> <input type="range" id="unc-ar-md" min="0.1" max="1" value="0.725" step="0.01"><span class="unc-val" id="unc-ar-md-val">0.73</span></label>
+        <label>AR<sub>lg</sub> <input type="range" id="unc-ar-lg" min="0.1" max="1" value="0.832" step="0.01"><span class="unc-val" id="unc-ar-lg-val">0.83</span></label>
+        <label>AP<sub>sm</sub> <input type="range" id="unc-ap-sm" min="0.05" max="1" value="0.339" step="0.01"><span class="unc-val" id="unc-ap-sm-val">0.34</span></label>
+        <label>AP<sub>md</sub> <input type="range" id="unc-ap-md" min="0.05" max="1" value="0.539" step="0.01"><span class="unc-val" id="unc-ap-md-val">0.54</span></label>
+        <label>AP<sub>lg</sub> <input type="range" id="unc-ap-lg" min="0.05" max="1" value="0.657" step="0.01"><span class="unc-val" id="unc-ap-lg-val">0.66</span></label>
+        <label>Latency <input type="range" id="unc-latency" min="5" max="100" value="19" step="1"><span class="unc-val" id="unc-latency-val">19</span>ms</label>
+        <label>&tau;<sub>high</sub> <input type="range" id="unc-tau-hi" min="0.1" max="0.9" value="0.6" step="0.05"><span class="unc-val" id="unc-tau-hi-val">0.60</span></label>
+        <label>&tau;<sub>low</sub> <input type="range" id="unc-tau-lo" min="0.01" max="0.5" value="0.1" step="0.01"><span class="unc-val" id="unc-tau-lo-val">0.10</span></label>
+        <div class="unc-section">BEV Projection</div>
+        <label>Ground &plusmn; <input type="range" id="unc-bev-err" min="0" max="15" value="5" step="0.5"><span class="unc-val" id="unc-bev-err-val">5.0</span>&deg;</label>
+        <label style="grid-column:span 2;color:var(--text-dim)">Manhattan street tilt uncertainty</label>
+        <div class="unc-section">ByteTrack Kalman Filter</div>
+        <label>pos &sigma; <input type="range" id="unc-kf-pos" min="0.01" max="0.2" value="0.05" step="0.005"><span class="unc-val" id="unc-kf-pos-val">1/20</span></label>
+        <label>vel &sigma; <input type="range" id="unc-kf-vel" min="0.001" max="0.05" value="0.00625" step="0.001"><span class="unc-val" id="unc-kf-vel-val">1/160</span></label>
+        <label>max lost <input type="range" id="unc-kf-lost" min="5" max="90" value="30" step="1"><span class="unc-val" id="unc-kf-lost-val">30</span>f</label>
+        <label>IoU thr <input type="range" id="unc-kf-iou" min="0.05" max="0.5" value="0.2" step="0.05"><span class="unc-val" id="unc-kf-iou-val">0.20</span></label>
+        <label>FPS <input type="range" id="unc-fps" min="10" max="60" value="30" step="5"><span class="unc-val" id="unc-fps-val">30</span></label>
+        <label style="color:var(--text-dim)">vel err = f(KF, dist)</label>
+      </div>
+    </div>
+    <div class="math-bar collapsed" id="math-bar">
+      <button class="unc-toggle" id="math-toggle">Systematic Error Budget &#9654;</button>
+      <div class="math-content" id="math-content">Select a scenario and play to see error budget.</div>
+    </div>
+  </div>
+
+  <div class="panel" style="border-right:none">
+    <div class="panel-header">
+      <span class="panel-title">Bird's Eye View</span>
+      <span class="panel-badge badge-idle" id="bev-badge">No scenario</span>
+    </div>
+    <div class="scenario-bar" id="scenario-bar"></div>
+    <div class="scenario-info" id="scenario-info">&nbsp;</div>
+    <div class="panel-content"><canvas id="bev-canvas"></canvas></div>
+    <div class="timeline-bar">
+      <span class="timeline-label" id="tl-time">0.0s</span>
+      <div class="timeline-track" id="tl-track">
+        <div class="timeline-fill" id="tl-fill" style="width:0%"></div>
+        <div class="timeline-agents" id="tl-agents"></div>
+      </div>
+      <span class="timeline-dur" id="tl-dur">/ 0.0s</span>
+      <span class="loop-indicator active" id="loop-toggle" title="Toggle loop">&#x1F501;</span>
+    </div>
+    <div class="sim-controls">
+      <button id="play-btn" onclick="togglePlay()">&#9654; Play</button>
+      <button onclick="resetSim()">Reset</button>
+      <span>Speed</span>
+      <input type="range" id="speed-slider" min="0.25" max="3" value="1" step="0.25">
+      <span id="speed-val">1.0x</span>
+      <div class="telem">
+        <div><span>Obj </span><span id="tel-obj">0</span></div>
+        <div><span>Trk </span><span id="tel-trk">0</span></div>
+        <div><span>Min </span><span id="tel-dist">--</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== PIPELINES =====
+// Mirrors decision_testbench.PIPELINE_CONFIGS. 'rule' selects the Stage-3
+// logic: pairwise (both agents' history), distance_only (no motion check),
+// naive_closing (only the bike's history vs ped's current), or ttc (time-to-
+// collision vs threshold). 'speedAdaptive' expands proxMax to the cyclist
+// stopping distance when the cyclist is moving above proxSpeedMin.
+function proxDetail(p){
+  if(p.rule==='distance_only')return`Distance only: [${p.proxMin},${p.proxMax}]m`;
+  if(p.rule==='ttc')return`TTC < ${p.ttcThreshold}s (bounds [${p.proxMin},${p.proxMax}]m)`;
+  const base=`dist [${p.proxMin},${p.proxMax}]m, lookback k=${p.lookbackFrames}, v>${p.proxSpeedMin}`;
+  return p.rule==='naive_closing'?`Naive closing: ${base}`:`Pairwise closing: ${base}`+(p.speedAdaptive?', d_max adaptive':'');
+}
+function standardNodes(p){
+  const bikeDetail=p.bikeMemoryFrames>0
+    ?`${p.bikeMemoryFrames}-frame memory buffer`
+    :'Memory disabled (frame-only)';
+  const bikeChk={id:'bike_chk',type:'decision',label:'Bike recently detected?',detail:bikeDetail,yesTarget:'prox_chk',noTarget:'out_safe'};
+  return[
+    {id:'detect',type:'process',label:'YOLO Detection',detail:'YOLO11x, ByteTrack',next:'classify'},
+    {id:'classify',type:'process',label:'Classify + BEV Project',detail:'Fisheye to ground coords',next:'track'},
+    {id:'track',type:'process',label:'Multi-Object Tracking',detail:'ByteTrack, speed estimation',next:'person_chk'},
+    {id:'person_chk',type:'decision',label:'Person in scene?',detail:'class_id == 0',yesTarget:'bike_chk',noTarget:'out_idle'},
+    bikeChk,
+    {id:'prox_chk',type:'decision',label:'Proximity alert?',detail:proxDetail(p),yesTarget:'out_alert',noTarget:'out_warn'},
+    {id:'out_idle',type:'output',label:'BLUE',detail:'Idle, no pedestrians',sound:'NONE'},
+    {id:'out_safe',type:'output',label:'GREEN',detail:'Safe crossing, go signal',sound:'GO SIGNAL'},
+    {id:'out_warn',type:'output',label:'ORANGE',detail:'Bike nearby, monitoring',sound:'NONE'},
+    {id:'out_alert',type:'output',label:'RED BLINK',detail:'Proximity alert!',sound:'BIKE BELL'},
+  ];
+}
+function makePipeline(name,desc,params){
+  const p={rule:'pairwise',ttcThreshold:3.0,speedAdaptive:false,lookbackFrames:2,...params};
+  return{name,desc,...p,nodes:standardNodes(p)};
+}
+const PIPELINE_FACTORIES=[
+  ()=>makePipeline('Selected',
+    'Optimizer-derived: pairwise closing with speed-adaptive d_max, lookback k=2.',
+    {bikeMemoryFrames:58,proxMin:1.9,proxMax:24.8,proxSpeedMin:0.147,lookbackFrames:2,speedAdaptive:true,rule:'pairwise'}),
+  ()=>makePipeline('Conservative',
+    'Tighter range, longer lookback, no speed adaptation.',
+    {bikeMemoryFrames:60,proxMin:1.5,proxMax:15.0,proxSpeedMin:0.05,lookbackFrames:3,speedAdaptive:false,rule:'pairwise'}),
+  ()=>makePipeline('Speed-Adaptive',
+    'Wider base window, speed-adaptive upper bound via stopping distance.',
+    {bikeMemoryFrames:60,proxMin:1.0,proxMax:20.0,proxSpeedMin:0.05,lookbackFrames:2,speedAdaptive:true,rule:'pairwise'}),
+  ()=>makePipeline('Proximity Only',
+    'Skips cyclist memory stage. Checks all bike\u2013ped pairs every frame.',
+    {bikeMemoryFrames:0,proxMin:2.0,proxMax:10.0,proxSpeedMin:0.1,lookbackFrames:3,speedAdaptive:false,rule:'pairwise'}),
+  ()=>makePipeline('Distance Only',
+    'Rule baseline: alert on proximity alone, no motion check.',
+    {bikeMemoryFrames:58,proxMin:1.9,proxMax:10.0,proxSpeedMin:0.0,lookbackFrames:2,speedAdaptive:false,rule:'distance_only'}),
+  ()=>makePipeline('Naive Closing',
+    'Rule baseline: bike\u2019s past position vs pedestrian\u2019s CURRENT position.',
+    {bikeMemoryFrames:58,proxMin:1.9,proxMax:24.8,proxSpeedMin:0.147,lookbackFrames:2,speedAdaptive:true,rule:'naive_closing'}),
+  ()=>makePipeline('TTC',
+    'Rule baseline: alert when estimated time-to-collision < 3 s.',
+    {bikeMemoryFrames:58,proxMin:1.9,proxMax:24.8,proxSpeedMin:0.0,lookbackFrames:2,speedAdaptive:true,rule:'ttc',ttcThreshold:3.0}),
+];
+const PIPELINES=PIPELINE_FACTORIES;  // legacy alias used below
+let currentPipeline=PIPELINE_FACTORIES[0]();
+let activeNodeId=null,activeOutputId=null;
+
+// Cyclist stopping distance (m). Matches decision_pipeline.stopping_distance:
+//   d = v * t_react + v^2 / (2 * decel)
+// Default PRT=0.84 s and decel=1.96 m/s^2 are 85th-pctl field values (Martin
+// & Bigazzi 2025). E-bike scenarios use decel=6.0 m/s^2 (disc-brake capability).
+function stoppingDistance(vMs,decel=1.96,prt=0.84){
+  return vMs*prt + vMs*vMs/(2*decel);
+}
+function scenarioBrakingDecel(){
+  return(currentScenario&&currentScenario.vehicle==='ebike')?6.0:1.96;
+}
+
+// ===== SCENARIOS =====
+// Mirrors decision_testbench.SCENARIOS verbatim. Paths and waypoint timings
+// are the authoritative ground truth; do not edit here without also updating
+// the testbench (the testbench is what the paper is evaluated against).
+// 'vehicle': 'ebike' selects the e-bike braking profile (decel=6.0 m/s^2) in
+// the speed-adaptive upper bound; omitted = conventional bicycle (1.96 m/s^2).
+// 'expected' is the dominant ground-truth label for display only.
+const SCENARIOS=[
+  {name:'Safe Crossing',expected:'safe',challenge:'Baseline: no cyclist, pedestrian crosses safely.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-8,t:0},{x:5,y:-4,t:1.5},{x:5,y:0,t:3},{x:5,y:4,t:4.5},{x:5,y:8,t:6}]}]},
+  {name:'Bike Approaches Ped',expected:'alert',challenge:'Core alarm: cyclist closes on pedestrian on the crosswalk.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-6,t:0},{x:5,y:-3,t:1.5},{x:5,y:0,t:3},{x:5,y:3,t:4.5},{x:5,y:6,t:6},{x:5,y:8,t:7}]},
+    {type:'bike',id:2,path:[{x:34,y:2,t:0},{x:26,y:1.5,t:1},{x:18,y:1,t:2},{x:14,y:.5,t:3},{x:10,y:0,t:4},{x:7,y:-.2,t:5},{x:5.2,y:-.4,t:6},{x:3,y:-.6,t:7}]}]},
+  {name:'High-Speed Near Miss',expected:'alert',challenge:'Temporal sensitivity: brief alert then clear.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-3,t:0},{x:5,y:-2,t:1},{x:5,y:-1,t:2},{x:5,y:0,t:3},{x:5,y:1,t:4},{x:5,y:2,t:5},{x:5,y:3,t:6}]},
+    {type:'bike',id:2,path:[{x:34,y:1.6,t:0},{x:27,y:1.3,t:1},{x:20,y:1,t:2},{x:16,y:.8,t:2.7},{x:12,y:.5,t:3.4},{x:8,y:.2,t:4.1},{x:5.5,y:0,t:4.6},{x:3,y:-.2,t:5.1},{x:-1,y:-.5,t:5.8}]}]},
+  {name:'Multiple VRUs',expected:'alert',challenge:'Pairwise proximity with 3 peds on crosswalk + 2 cyclists.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-8,t:0},{x:5,y:-4,t:2},{x:5,y:0,t:4},{x:5,y:4,t:6},{x:5,y:8,t:8}]},
+    {type:'person',id:2,path:[{x:5,y:7,t:.5},{x:5,y:3,t:2},{x:5,y:-1,t:3.5},{x:5,y:-5,t:5},{x:5,y:-9,t:7}]},
+    {type:'person',id:3,path:[{x:5,y:-4,t:1},{x:5,y:0,t:3},{x:5,y:4,t:5},{x:5,y:8,t:7}]},
+    {type:'bike',id:4,path:[{x:34,y:-2,t:0},{x:28,y:-1.5,t:1},{x:22,y:-1,t:2},{x:17,y:-.5,t:3.2},{x:12,y:0,t:4.4},{x:7,y:.3,t:5.6},{x:2,y:.5,t:6.8}]},
+    {type:'bike',id:5,path:[{x:27,y:12,t:.5},{x:21,y:9,t:1.5},{x:15,y:6,t:2.5},{x:12,y:4,t:3.5},{x:9,y:2,t:4.5},{x:6,y:0,t:5.5},{x:3,y:-2,t:6.5}]}]},
+  {name:'Occluded Emergence',expected:'alert',challenge:'Cyclist emerges from behind an obstacle at close range.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-3,t:0},{x:5,y:-2,t:1},{x:5,y:-1,t:2},{x:5,y:0,t:3},{x:5,y:1,t:4},{x:5,y:2,t:5},{x:5,y:3,t:6}]},
+    {type:'bike',id:2,path:[{x:9,y:4,t:3},{x:7.5,y:2.5,t:3.5},{x:6,y:1,t:4},{x:4.8,y:-.2,t:4.5},{x:3.5,y:-1.5,t:5}]}]},
+  {name:'Parallel Paths',expected:'warning',challenge:'False-positive test: same heading, constant 3 m offset (no closing).',agents:[
+    {type:'person',id:1,path:[{x:5,y:-6,t:0},{x:5,y:-3,t:1.5},{x:5,y:0,t:3},{x:5,y:3,t:4.5},{x:5,y:6,t:6},{x:5,y:9,t:7.5}]},
+    {type:'bike',id:2,path:[{x:8,y:-6,t:2},{x:8,y:-3,t:3.5},{x:8,y:0,t:5},{x:8,y:3,t:6.5},{x:8,y:6,t:8}]}]},
+  {name:'Bikes Only',expected:'idle',challenge:'No pedestrians: system should stay idle throughout.',agents:[
+    {type:'bike',id:1,path:[{x:18,y:-2,t:0},{x:14,y:-1.5,t:1},{x:10,y:-1,t:2},{x:6,y:-.5,t:3},{x:2,y:0,t:4}]},
+    {type:'bike',id:2,path:[{x:15,y:5,t:1},{x:12,y:4,t:2},{x:9,y:3,t:3},{x:6,y:2,t:4},{x:3,y:1,t:5}]}]},
+  {name:'Fast Approach',expected:'alert',vehicle:'ebike',challenge:'E-bike at ~40 km/h crosses the proximity zone in <1 s.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-4,t:0},{x:5,y:-2,t:1.5},{x:5,y:0,t:3},{x:5,y:2,t:4.5},{x:5,y:4,t:6}]},
+    {type:'bike',id:2,path:[{x:25,y:.5,t:2},{x:13,y:.2,t:3},{x:1,y:-.1,t:4}]}]},
+  {name:'Speed Variant',expected:'alert',challenge:'Two cyclists on the same line at ~11 and ~36 km/h.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-3,t:0},{x:5,y:-1,t:2},{x:5,y:1,t:4},{x:5,y:3,t:6},{x:5,y:5,t:8},{x:5,y:7,t:10}]},
+    {type:'bike',id:2,path:[{x:20,y:2,t:2},{x:17,y:1.7,t:3},{x:14,y:1.4,t:4},{x:11,y:1.1,t:5},{x:8,y:.8,t:6},{x:5,y:.5,t:7},{x:2,y:.2,t:8}]},
+    {type:'bike',id:3,path:[{x:20,y:-2,t:5},{x:14,y:-1.5,t:5.6},{x:8,y:-1,t:6.2},{x:2,y:-.5,t:6.8}]}]},
+  {name:'Counter-Flow on Crosswalk',expected:'alert',challenge:'Cyclist rides along the crosswalk axis toward pedestrian.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-6,t:0},{x:5,y:-3,t:2},{x:5,y:0,t:4},{x:5,y:3,t:6}]},
+    {type:'bike',id:2,path:[{x:5.5,y:12,t:2},{x:5.3,y:8,t:3},{x:5.1,y:4,t:4},{x:5,y:0,t:5},{x:4.9,y:-4,t:6}]}]},
+  {name:'Multi-Speed Converging',expected:'alert',challenge:'Mixed-speed cyclists from three angles on 2 pedestrians.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-8,t:0},{x:5,y:-4,t:2},{x:5,y:0,t:4},{x:5,y:4,t:6},{x:5,y:8,t:8}]},
+    {type:'person',id:2,path:[{x:5,y:6,t:1},{x:5,y:2,t:3},{x:5,y:-2,t:5},{x:5,y:-6,t:7}]},
+    {type:'bike',id:3,path:[{x:20,y:3,t:2},{x:16,y:2.5,t:3.5},{x:12,y:2,t:5},{x:8,y:1.5,t:6.5},{x:4,y:1,t:8}]},
+    {type:'bike',id:4,path:[{x:22,y:-6,t:4},{x:16,y:-4,t:4.8},{x:10,y:-2,t:5.6},{x:4,y:0,t:6.4}]},
+    {type:'bike',id:5,path:[{x:18,y:8,t:5},{x:13,y:5,t:5.7},{x:8,y:2,t:6.4},{x:3,y:-1,t:7.1}]}]},
+  {name:'Wheelchair User',expected:'alert',challenge:'Wheelchair user at 0.6 m/s: doubled exposure in the crosswalk.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-8,t:0},{x:5,y:-4,t:6.7},{x:5,y:0,t:13.3},{x:5,y:4,t:20},{x:5,y:8,t:26.7}]},
+    {type:'bike',id:2,path:[{x:34,y:2,t:6},{x:26,y:1.5,t:7},{x:18,y:1,t:8},{x:14,y:.5,t:9},{x:10,y:0,t:10},{x:7,y:-.2,t:11},{x:5.2,y:-.4,t:12},{x:3,y:-.6,t:13}]}]},
+  {name:'Stopped Pedestrian',expected:'alert',challenge:'Pedestrian stops mid-crosswalk (phone) while cyclist approaches.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-6,t:0},{x:5,y:-2,t:3},{x:5,y:0,t:4.5},{x:5,y:0,t:8.5},{x:5,y:3,t:10.8},{x:5,y:6,t:13}]},
+    {type:'bike',id:2,path:[{x:20,y:.5,t:5},{x:15,y:.3,t:6},{x:10,y:.1,t:7},{x:6,y:-.1,t:8},{x:3,y:-.2,t:9}]}]},
+  {name:'Cross-Street Cyclist',expected:'alert',challenge:'Cyclist runs red from cross street, approaches along y-axis.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-5,t:0},{x:5,y:-2,t:2.3},{x:5,y:0,t:3.8},{x:5,y:3,t:6},{x:5,y:6,t:8}]},
+    {type:'bike',id:2,path:[{x:5.5,y:-20,t:2},{x:5.3,y:-14,t:3},{x:5.1,y:-8,t:4},{x:5,y:-2,t:5},{x:4.9,y:4,t:6},{x:4.8,y:10,t:7}]}]},
+  {name:'E-Scooter',expected:'alert',vehicle:'ebike',challenge:'E-scooter at 25 km/h, classified as bike (ebike braking profile).',agents:[
+    {type:'person',id:1,path:[{x:5,y:-5,t:0},{x:5,y:-2,t:2.3},{x:5,y:1,t:4.6},{x:5,y:4,t:7}]},
+    {type:'bike',id:2,path:[{x:22,y:.3,t:2},{x:15,y:.1,t:3},{x:8,y:-.1,t:4},{x:1,y:-.3,t:5}]}]},
+  {name:'Child Pedestrian',expected:'alert',challenge:'Child at 0.9 m/s, 1.0 m tall (smaller projected bbox).',agents:[
+    {type:'person',id:1,path:[{x:5,y:-6,t:0},{x:5,y:-3,t:3.3},{x:5,y:0,t:6.7},{x:5,y:3,t:10},{x:5,y:6,t:13.3}]},
+    {type:'bike',id:2,path:[{x:34,y:1,t:2},{x:26,y:.8,t:3},{x:18,y:.5,t:4},{x:14,y:.3,t:5},{x:10,y:.1,t:6},{x:7,y:-.1,t:7},{x:5,y:-.2,t:8},{x:3,y:-.3,t:9}]}]},
+  {name:'Overtake from Behind',expected:'alert',challenge:'Cyclist overtakes pedestrian on the same line, zero lateral offset.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-8,t:0},{x:5,y:-4,t:3},{x:5,y:0,t:6},{x:5,y:4,t:9},{x:5,y:8,t:12}]},
+    {type:'bike',id:2,path:[{x:5.2,y:-12,t:3},{x:5.1,y:-6,t:4.5},{x:5,y:0,t:6},{x:4.9,y:6,t:7.5},{x:4.8,y:12,t:9}]}]},
+  {name:'Cyclist Abort',expected:'safe',challenge:'Cyclist approaches then turns away at 8 m: alert should clear.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-4,t:0},{x:5,y:-2,t:1.5},{x:5,y:0,t:3},{x:5,y:2,t:4.5},{x:5,y:4,t:6},{x:5,y:6,t:7.5}]},
+    {type:'bike',id:2,path:[{x:20,y:1,t:2},{x:15,y:.5,t:3},{x:10,y:0,t:4},{x:8,y:-.5,t:4.5},{x:9,y:-3,t:5.5},{x:12,y:-6,t:7}]}]},
+  {name:'Dense Pedestrian Group',expected:'alert',challenge:'8-person group crosses together; cyclist approaches the group.',agents:[
+    {type:'person',id:1,path:[{x:4.5,y:-6,t:0},{x:4.5,y:0,t:4.6},{x:4.5,y:6,t:9.2}]},
+    {type:'person',id:2,path:[{x:5.5,y:-6,t:.2},{x:5.5,y:0,t:4.8},{x:5.5,y:6,t:9.4}]},
+    {type:'person',id:3,path:[{x:4.8,y:-5.5,t:.4},{x:4.8,y:.5,t:5},{x:4.8,y:6.5,t:9.6}]},
+    {type:'person',id:4,path:[{x:5.2,y:-5.8,t:.1},{x:5.2,y:.2,t:4.7},{x:5.2,y:6.2,t:9.3}]},
+    {type:'person',id:5,path:[{x:4.6,y:-6.2,t:.3},{x:4.6,y:-.2,t:4.9},{x:4.6,y:5.8,t:9.5}]},
+    {type:'person',id:6,path:[{x:5.4,y:-5.6,t:.5},{x:5.4,y:.4,t:5.1},{x:5.4,y:6.4,t:9.7}]},
+    {type:'person',id:7,path:[{x:5.0,y:-6.4,t:.6},{x:5.0,y:-.4,t:5.2},{x:5.0,y:5.6,t:9.8}]},
+    {type:'person',id:8,path:[{x:4.9,y:-5.4,t:.7},{x:4.9,y:.6,t:5.3},{x:4.9,y:6.6,t:9.9}]},
+    {type:'bike',id:9,path:[{x:20,y:.5,t:3},{x:15,y:.3,t:4.2},{x:10,y:.1,t:5.4},{x:6,y:-.1,t:6.6},{x:3,y:-.2,t:7.5}]}]},
+  {name:'Diagonal Jaywalker',expected:'alert',challenge:'Pedestrian crosses diagonally, off the crosswalk axis.',agents:[
+    {type:'person',id:1,path:[{x:2,y:-6,t:0},{x:4,y:-2,t:3},{x:6,y:2,t:6},{x:8,y:6,t:9}]},
+    {type:'bike',id:2,path:[{x:34,y:1,t:0},{x:26,y:.8,t:1},{x:18,y:.5,t:2},{x:14,y:.3,t:3},{x:10,y:0,t:4},{x:6,y:-.2,t:5},{x:3,y:-.4,t:6}]}]},
+  {name:'Swerving Cyclist',expected:'alert',challenge:'Cyclist rides straight, then swerves toward the pedestrian.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-4,t:0},{x:5,y:-1,t:2.5},{x:5,y:2,t:5},{x:5,y:5,t:7.5}]},
+    {type:'bike',id:2,path:[{x:30,y:6,t:0},{x:24,y:6,t:1},{x:18,y:5.5,t:2},{x:14,y:4,t:3},{x:10,y:2,t:4},{x:7,y:0,t:5},{x:5.2,y:-.5,t:6}]}]},
+  {name:'Late Turn Toward Ped',expected:'alert',challenge:'Cyclist rides parallel, then turns sharply toward the crosswalk.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-3,t:0},{x:5,y:0,t:2.3},{x:5,y:3,t:4.6},{x:5,y:6,t:7}]},
+    {type:'bike',id:2,path:[{x:30,y:1,t:0},{x:22,y:1,t:1.5},{x:14,y:1,t:3},{x:10,y:.5,t:4},{x:7,y:-.5,t:5},{x:5,y:-1.5,t:6},{x:4,y:-3,t:7}]}]},
+  {name:'U-Turn Cyclist',expected:'alert',challenge:'Cyclist passes stationary pedestrian, U-turns, returns.',agents:[
+    {type:'person',id:1,path:[{x:5,y:0,t:0},{x:5,y:0,t:8}]},
+    {type:'bike',id:2,path:[{x:20,y:3,t:0},{x:14,y:2,t:1},{x:8,y:1,t:2},{x:3,y:.5,t:3},{x:0,y:1,t:4},{x:-1,y:3,t:5},{x:1,y:4,t:5.7},{x:3,y:2,t:6.4},{x:5,y:.5,t:7.2},{x:7,y:-1,t:8}]}]},
+  {name:'Accelerating E-Bike',expected:'alert',vehicle:'ebike',challenge:'E-bike starts slow, throttles hard toward the crossing.',agents:[
+    {type:'person',id:1,path:[{x:5,y:-5,t:0},{x:5,y:-2,t:2.3},{x:5,y:1,t:4.6},{x:5,y:4,t:7}]},
+    {type:'bike',id:2,path:[{x:30,y:.5,t:0},{x:27,y:.4,t:1},{x:23,y:.3,t:2},{x:17,y:.2,t:3},{x:9,y:.1,t:4},{x:1,y:0,t:5}]}]}
+];
+
+// ===== CAMERA SYSTEM =====
+const CAM_COLORS=['#2563eb','#7c3aed','#0d9488','#d97706'];
+let cameras=[{id:0,x:5,y:-13,h:5.5,fov:220,heading:90,color:CAM_COLORS[0],label:'CAM-1'}];
+let activeCamIdx=0;
+function activeCam(){return cameras[activeCamIdx];}
+
+// ===== UNCERTAINTY MODEL =====
+// Mutable — read from sliders on each frame
+function readUncertaintyParams(){
+  return{
+    yolo:{
+      small:{ap:+document.getElementById('unc-ap-sm').value,ar:+document.getElementById('unc-ar-sm').value},
+      medium:{ap:+document.getElementById('unc-ap-md').value,ar:+document.getElementById('unc-ar-md').value},
+      large:{ap:+document.getElementById('unc-ap-lg').value,ar:+document.getElementById('unc-ar-lg').value},
+      latencyMs:+document.getElementById('unc-latency').value,
+      tauHigh:+document.getElementById('unc-tau-hi').value,
+      tauLow:+document.getElementById('unc-tau-lo').value
+    },
+    bev:{angularErrorDeg:+document.getElementById('unc-bev-err').value},
+    kf:{
+      stdWeightPos:+document.getElementById('unc-kf-pos').value,   // SORT default: 1/20 = 0.05
+      stdWeightVel:+document.getElementById('unc-kf-vel').value,   // SORT default: 1/160 = 0.00625
+      maxTimeLost:+document.getElementById('unc-kf-lost').value,   // frames before track deletion
+      iouThreshold:+document.getElementById('unc-kf-iou').value,   // match threshold
+      fps:+document.getElementById('unc-fps').value
+    }
+  };
+}
+let UNCERTAINTY=readUncertaintyParams();
+
+function hexToRgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return'rgba('+r+','+g+','+b+','+a+')';
+}
+
+// ===== STATE =====
+let currentScenario=null,simTime=0,playing=false,animFrame=null,lastTs=0,frameCount=0;
+let trackHistories={},bikeMemory=[];
+let blinkState=false,blinkTimer=0;
+let currentAgents=[],personInScene=false,bikeInScene=false,bikeRecentlyDetected=false;
+let proximityAlert=false,minDist=Infinity,closingPairs=[];
+let decisionResult='idle';
+let loopEnabled=true;
+
+function getScenarioDuration(){
+  if(!currentScenario)return 1;
+  let maxT=0;
+  for(const ag of currentScenario.agents){
+    const last=ag.path[ag.path.length-1];
+    if(last.t>maxT)maxT=last.t;
+  }
+  return maxT+0.5; // small buffer after last agent disappears
+}
+
+const bevCanvas=document.getElementById('bev-canvas');
+const bevCtx=bevCanvas.getContext('2d');
+const flowCanvas=document.getElementById('flow-canvas');
+const flowCtx=flowCanvas.getContext('2d');
+
+function resizeAll(){
+  [bevCanvas,flowCanvas].forEach(c=>{
+    const p=c.parentElement;
+    c.width=p.clientWidth*devicePixelRatio;
+    c.height=p.clientHeight*devicePixelRatio;
+    c.style.width=p.clientWidth+'px';
+    c.style.height=p.clientHeight+'px';
+  });
+  drawFlow();drawBEV();
+}
+window.addEventListener('resize',resizeAll);
+setTimeout(resizeAll,50);
+
+// Build UI
+function buildPipeButtons(){
+  const bar=document.getElementById('pipe-bar');
+  bar.innerHTML='<span class="pipe-bar-label">Pipeline:</span>';
+  PIPELINES.forEach(fn=>{
+    const p=fn();const btn=document.createElement('button');
+    btn.className='pipe-btn'+(p.name===currentPipeline.name?' active':'');
+    btn.textContent=p.name;
+    btn.onclick=()=>{currentPipeline=fn();buildPipeButtons();resetSim();};
+    bar.appendChild(btn);
+  });
+}
+buildPipeButtons();
+const sbar=document.getElementById('scenario-bar');
+SCENARIOS.forEach((s,i)=>{const btn=document.createElement('button');btn.className='scn-btn';btn.textContent=s.name;btn.onclick=()=>loadScenario(i);sbar.appendChild(btn);});
+// Camera slider -> active camera sync
+['cam-x','cam-y','cam-h','cam-fov','cam-hdg'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    document.getElementById(id+'-val').textContent=parseFloat(e.target.value).toFixed(id==='cam-h'?1:0);
+    const cam=activeCam();
+    cam.x=+document.getElementById('cam-x').value;cam.y=+document.getElementById('cam-y').value;
+    cam.h=+document.getElementById('cam-h').value;cam.fov=+document.getElementById('cam-fov').value;
+    cam.heading=+document.getElementById('cam-hdg').value;
+    document.querySelectorAll('.cam-preset[data-preset]').forEach(b=>b.classList.remove('active'));
+    if(!playing){drawBEV();drawFlow();}
+  });
+});
+
+function syncSlidersToActiveCam(){
+  const cam=activeCam();
+  document.getElementById('cam-x').value=cam.x;document.getElementById('cam-x-val').textContent=cam.x.toFixed(0);
+  document.getElementById('cam-y').value=cam.y;document.getElementById('cam-y-val').textContent=cam.y.toFixed(0);
+  document.getElementById('cam-h').value=cam.h;document.getElementById('cam-h-val').textContent=cam.h.toFixed(1);
+  document.getElementById('cam-fov').value=cam.fov;document.getElementById('cam-fov-val').textContent=cam.fov.toFixed(0);
+  document.getElementById('cam-hdg').value=cam.heading;document.getElementById('cam-hdg-val').textContent=cam.heading.toFixed(0);
+}
+
+function buildCamSelectorButtons(){
+  const cont=document.getElementById('cam-selector-btns');cont.innerHTML='';
+  cameras.forEach((cam,i)=>{
+    const btn=document.createElement('button');
+    btn.className='cam-preset'+(i===activeCamIdx?' active':'');
+    btn.textContent=cam.label;
+    btn.style.borderColor=cam.color;
+    if(i===activeCamIdx){btn.style.background=hexToRgba(cam.color,0.1);btn.style.color=cam.color;}
+    btn.onclick=()=>{activeCamIdx=i;syncSlidersToActiveCam();buildCamSelectorButtons();if(!playing){drawBEV();drawFlow();}};
+    cont.appendChild(btn);
+  });
+}
+buildCamSelectorButtons();
+
+document.getElementById('cam-add-btn').onclick=()=>{
+  if(cameras.length>=4)return;
+  const i=cameras.length;
+  cameras.push({id:i,x:5,y:13,h:5.5,fov:220,heading:270,color:CAM_COLORS[i%CAM_COLORS.length],label:'CAM-'+(i+1)});
+  activeCamIdx=i;syncSlidersToActiveCam();buildCamSelectorButtons();
+  document.querySelectorAll('.cam-preset[data-preset]').forEach(b=>b.classList.remove('active'));
+  if(!playing){drawBEV();drawFlow();}
+};
+document.getElementById('cam-remove-btn').onclick=()=>{
+  if(cameras.length<=1)return;
+  cameras.splice(activeCamIdx,1);
+  cameras.forEach((c,i)=>{c.id=i;c.color=CAM_COLORS[i%CAM_COLORS.length];c.label='CAM-'+(i+1);});
+  activeCamIdx=Math.min(activeCamIdx,cameras.length-1);
+  syncSlidersToActiveCam();buildCamSelectorButtons();
+  document.querySelectorAll('.cam-preset[data-preset]').forEach(b=>b.classList.remove('active'));
+  if(!playing){drawBEV();drawFlow();}
+};
+
+// Scene presets (can define multi-camera setups)
+const CAM_PRESETS={
+  pole:{cameras:[{x:5,y:-13,h:5.5,fov:220,heading:90}]},
+  cross:{cameras:[{x:5,y:-13,h:5.5,fov:220,heading:90},{x:5,y:13,h:5.5,fov:220,heading:270}]},
+  center:{cameras:[{x:0,y:0,h:1.88,fov:200,heading:0}]},
+  overhead:{cameras:[{x:5,y:0,h:8,fov:200,heading:0}]}
+};
+function applyCamPreset(name){
+  const p=CAM_PRESETS[name];if(!p)return;
+  cameras=p.cameras.map((c,i)=>({id:i,x:c.x,y:c.y,h:c.h,fov:c.fov,heading:c.heading,color:CAM_COLORS[i%CAM_COLORS.length],label:'CAM-'+(i+1)}));
+  activeCamIdx=0;syncSlidersToActiveCam();buildCamSelectorButtons();
+  document.querySelectorAll('.cam-preset[data-preset]').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.cam-preset[data-preset="'+name+'"]').classList.add('active');
+  if(!playing){drawBEV();drawFlow();}
+}
+document.querySelectorAll('.cam-preset[data-preset]').forEach(btn=>{
+  btn.addEventListener('click',()=>applyCamPreset(btn.dataset.preset));
+});
+document.getElementById('speed-slider').addEventListener('input',e=>{document.getElementById('speed-val').textContent=(+e.target.value).toFixed(2)+'x';});
+
+// Uncertainty panel toggle
+document.getElementById('unc-toggle').addEventListener('click',()=>{
+  const bar=document.getElementById('unc-bar');
+  bar.classList.toggle('collapsed');
+  document.getElementById('unc-toggle').innerHTML='Uncertainty Parameters '+(bar.classList.contains('collapsed')?'&#9654;':'&#9660;');
+});
+// Uncertainty slider listeners
+const UNC_SLIDERS={
+  'unc-ar-sm':{fmt:v=>v.toFixed(2)}, 'unc-ar-md':{fmt:v=>v.toFixed(2)}, 'unc-ar-lg':{fmt:v=>v.toFixed(2)},
+  'unc-ap-sm':{fmt:v=>v.toFixed(2)}, 'unc-ap-md':{fmt:v=>v.toFixed(2)}, 'unc-ap-lg':{fmt:v=>v.toFixed(2)},
+  'unc-latency':{fmt:v=>v.toFixed(0)}, 'unc-tau-hi':{fmt:v=>v.toFixed(2)}, 'unc-tau-lo':{fmt:v=>v.toFixed(2)},
+  'unc-bev-err':{fmt:v=>v.toFixed(1)},
+  'unc-kf-pos':{fmt:v=>{const inv=Math.round(1/v);return'1/'+inv;}},
+  'unc-kf-vel':{fmt:v=>{const inv=Math.round(1/v);return'1/'+inv;}},
+  'unc-kf-lost':{fmt:v=>v.toFixed(0)}, 'unc-kf-iou':{fmt:v=>v.toFixed(2)},
+  'unc-fps':{fmt:v=>v.toFixed(0)}
+};
+Object.entries(UNC_SLIDERS).forEach(([id,cfg])=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    document.getElementById(id+'-val').textContent=cfg.fmt(+e.target.value);
+    UNCERTAINTY=readUncertaintyParams();
+    if(!playing){update();drawBEV();drawFlow();}
+  });
+});
+
+// Math panel toggle
+document.getElementById('math-toggle').addEventListener('click',()=>{
+  const bar=document.getElementById('math-bar');
+  bar.classList.toggle('collapsed');
+  document.getElementById('math-toggle').innerHTML='Systematic Error Budget '+(bar.classList.contains('collapsed')?'&#9654;':'&#9660;');
+});
+
+function buildMathBreakdown(){
+  if(!currentAgents.length){document.getElementById('math-content').textContent='No agents detected.';return;}
+  const el=document.getElementById('math-content');
+  if(document.getElementById('math-bar').classList.contains('collapsed'))return;
+  // Pick worst-case agent (most distant from its primary camera)
+  let worst=null,worstDist=0;
+  currentAgents.forEach(a=>{if(a.unc&&a.unc.perCam[0]&&a.unc.perCam[0].dist>worstDist){worstDist=a.unc.perCam[0].dist;worst=a;}});
+  if(!worst||!worst.unc){el.textContent='No uncertainty data.';return;}
+  const u=worst.unc,pc=u.perCam[0],cam=cameras[pc.camIdx],kf=UNCERTAINTY.kf;
+  const proj=pc._proj,f=pc._focalPx,p2w=pc._pxToWorld;
+  const phys=PHYS[worst.type]||PHYS.person;
+  const yolo=UNCERTAINTY.yolo[pc.sizeClass];
+  const s=v=>v.toFixed(4);const s2=v=>v.toFixed(2);const s1=v=>v.toFixed(1);
+  const sp=v=>v.toExponential(2);
+
+  // Find nearest other agent for ID switch detail
+  let nearAgent=null,nearSep=Infinity,nearProj=null;
+  currentAgents.forEach(a=>{
+    if(a===worst)return;
+    const pr=projectToPixel(cam,a.pos.x,a.pos.y,a.type);
+    if(!pr)return;
+    const sep=Math.abs(proj.azPx-pr.azPx);
+    if(sep<nearSep){nearSep=sep;nearAgent=a;nearProj=pr;}
+  });
+
+  let t='';
+  const h=s=>'<span class="mh">'+s+'</span>';
+  const f_=s=>'<span class="mf">'+s+'</span>';
+  const v=s=>'<span class="mv">'+s+'</span>';
+  const w=s=>'<span class="mw">'+s+'</span>';
+  const e=s=>'<span class="me">'+s+'</span>';
+
+  t+=h('Worst-case agent: '+worst.type+' at d='+s2(pc.dist)+'m from '+cam.label)+'\n';
+  t+=h('Size class: '+pc.sizeClass+' | Physical: '+phys.w+'m x '+phys.h+'m')+'\n\n';
+
+  // 1. Camera projection
+  t+=h('1. FISHEYE PROJECTION (equidistant model)')+'\n';
+  t+=f_('  f = W_img / FOV_rad')+' = '+IMG_W+' / '+s2(cam.fov*Math.PI/180)+' = '+v(s1(f)+' px/rad')+'\n';
+  t+=f_('  px \u2192 world')+' = d / f = '+s2(pc.dist)+' / '+s1(f)+' = '+v(s(p2w)+' m/px')+'\n';
+  if(proj){
+    t+='  Bbox: '+v(s1(proj.bboxW)+'x'+s1(proj.bboxH)+' px');
+    t+='  (w: f\u00b72\u00b7atan('+phys.w+'/(2\u00b7'+s1(pc.dist)+'))';
+    t+=', h: f\u00b7(\u0394elev) = f\u00b7(atan('+s1(cam.h)+'/'+s1(pc.dist)+')-atan('+s1(Math.max(cam.h-phys.h,0))+'/'+s1(pc.dist)+')))\n';
+  }
+  t+='\n';
+
+  // 2. YOLO
+  t+=h('2. YOLO DETECTION')+'\n';
+  t+=f_('  IoU \u2192 displacement: \u03b4x = w\u00b7(1-AP)/(1+AP)')+'\n';
+  t+='  AP('+pc.sizeClass+') = '+s2(yolo.ap);
+  t+=', AR('+pc.sizeClass+') = '+s2(yolo.ar)+'\n';
+  t+='  \u03b4x = '+s1(proj?proj.bboxW:0)+' \u00b7 (1-'+s2(yolo.ap)+')/(1+'+s2(yolo.ap)+') = '+v(s2(pc._dxPx)+' px')+'\n';
+  t+='  \u03b4y = '+s1(proj?proj.bboxH:0)+' \u00b7 (1-'+s2(yolo.ap)+')/(1+'+s2(yolo.ap)+') = '+v(s2(pc._dyPx)+' px')+'\n';
+  t+='  \u03c3_yolo = \u221a(\u03b4x\u00b2+\u03b4y\u00b2)\u00b7(d/f) = '+v(s(pc._yoloErrWorld)+' m')+'\n';
+  t+='  Miss rate = 1 - AR = '+w(s2(1-yolo.ar)+'/frame')+'\n\n';
+
+  // 3. BEV
+  t+=h('3. BEV GROUND-PLANE PROJECTION')+'\n';
+  t+=f_('  \u03c3_bev = d \u00b7 tan(\u03b8)')+'\n';
+  t+='  \u03b8 = \u00b1'+s1(UNCERTAINTY.bev.angularErrorDeg)+'\u00b0 (Manhattan street tilt)\n';
+  t+='  \u03c3_bev = '+s2(pc.dist)+' \u00b7 tan('+s1(UNCERTAINTY.bev.angularErrorDeg)+'\u00b0) = '+v(s(pc._bevErr)+' m')+'\n\n';
+
+  // 4. Kalman
+  t+=h('4. KALMAN FILTER (SORT/ByteTrack constant-velocity model)')+'\n';
+  t+=f_('  State: [cx, cy, a, h, cx\u0307, cy\u0307, a\u0307, h\u0307]')+'\n';
+  t+=f_('  P_pos(K) = \u03c3_p\u00b2 + 2K\u00b7\u03c3_pv + K\u00b2\u00b7\u03c3_v\u00b2 + K\u00b7q_p + q_v\u00b7K(K-1)(2K-1)/6')+'\n';
+  t+='  q_p = (\u03c3_pos\u00b7h_px)\u00b2 = ('+s(kf.stdWeightPos)+'\u00b7'+s1(proj?proj.bboxH:1)+')\u00b2 = '+v(s(pc._qp)+' px\u00b2')+'\n';
+  t+='  q_v = (\u03c3_vel\u00b7h_px)\u00b2 = ('+s(kf.stdWeightVel)+'\u00b7'+s1(proj?proj.bboxH:1)+')\u00b2 = '+v(s(pc._qv)+' px\u00b2')+'\n';
+  t+='  At K=0:  P_pos = '+s2(pc._kfPosVarPx)+' px\u00b2 \u2192 \u03c3_kf = '+v(s(pc._kfPosWorld)+' m')+'\n';
+  t+='  At K='+kf.maxTimeLost+': P_pos = '+s1(pc._kfLostVarPx)+' px\u00b2 \u2192 \u03c3_kf = '+e(s2(pc._kfLostWorld)+' m')+' (track drifted)\n';
+  t+=f_('  \u03c3_v_px = h\u00b7\u221a(\u03c3_vel\u00b7\u03c3_pos)')+' = '+s1(pc._velStdPx)+' px/frame\n';
+  t+='  \u03c3_v_world = \u03c3_v_px \u00b7 (d/f) \u00b7 fps = '+s1(pc._velStdPx)+'\u00b7'+s(p2w)+'\u00b7'+kf.fps+' = '+v(s2(pc.velStdWorld)+' m/s')+'\n\n';
+
+  // 5. ID switch
+  t+=h('5. ID SWITCH (pixel-space raycast)')+'\n';
+  t+=f_('  P(swap|i,j) = \u03a6(-s/(2\u03c3_i)) \u00b7 \u03a6(-s/(2\u03c3_j)) \u00b7 \u1d7d[IoU@mid > \u03c4]')+'\n';
+  if(nearAgent&&nearProj){
+    const sep=nearSep;
+    const sig_i=kf.stdWeightPos*(proj?proj.bboxH:1);
+    const sig_j=kf.stdWeightPos*nearProj.bboxH;
+    const iouMid=bboxIoU(0,proj?proj.bboxW:1,proj?proj.bboxH:1,sep/2,nearProj.bboxW,nearProj.bboxH,0);
+    const pSi=1-normalCDF(sep/(2*sig_i));
+    const pSj=1-normalCDF(sep/(2*sig_j));
+    t+='  Nearest: '+nearAgent.type+' (pixel sep = '+v(s1(sep)+' px')+')\n';
+    t+='  \u03c3_pred_i = \u03c3_pos\u00b7h_px = '+s(kf.stdWeightPos)+'\u00b7'+s1(proj?proj.bboxH:1)+' = '+v(s2(sig_i)+' px')+'\n';
+    t+='  \u03c3_pred_j = \u03c3_pos\u00b7h_px = '+s(kf.stdWeightPos)+'\u00b7'+s1(nearProj.bboxH)+' = '+v(s2(sig_j)+' px')+'\n';
+    t+='  IoU@midpoint = '+v(s(iouMid))+(iouMid<kf.iouThreshold?' < \u03c4='+s2(kf.iouThreshold)+' \u2192 gated to 0':'')+'\n';
+    t+='  \u03a6(-'+s1(sep)+'/(2\u00b7'+s2(sig_i)+')) = '+sp(pSi)+'\n';
+    t+='  \u03a6(-'+s1(sep)+'/(2\u00b7'+s2(sig_j)+')) = '+sp(pSj)+'\n';
+    const pPair=iouMid>=kf.iouThreshold?pSi*pSj:0;
+    t+='  P(swap|pair) = '+v(sp(pPair))+'\n';
+  }else{
+    t+='  No other agents visible \u2192 P(swap) = 0\n';
+  }
+  t+='  P(swap|agent, all pairs) = '+v(sp(u.fusedIdSwitch))+'/frame\n\n';
+
+  // 6. Track loss
+  t+=h('6. TRACK LOSS')+'\n';
+  t+=f_('  P(loss) = (1 - AR)^max_lost')+'\n';
+  t+='  = (1 - '+s2(yolo.ar)+')\u207F = '+s2(1-yolo.ar)+'^'+kf.maxTimeLost+' = '+v(sp(pc.pTrackLoss))+'\n\n';
+
+  // 7. Combined
+  t+=h('7. COMBINED POSITION UNCERTAINTY (RSS)')+'\n';
+  t+='  \u03c3_yolo = '+s(pc._yoloErrWorld)+' m\n';
+  t+='  \u03c3_bev  = '+s(pc._bevErr)+' m\n';
+  t+='  \u03c3_kf   = '+s(pc._kfPosWorld)+' m\n';
+  t+='  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+  t+='  \u03c3_total = \u221a(\u03a3\u03c3\u00b2) = '+v(s(pc.posRadius)+' m')+'\n\n';
+
+  // 8. Multi-camera fusion
+  if(u.numCams>1){
+    t+=h('8. MULTI-CAMERA FUSION ('+u.numCams+' cameras)')+'\n';
+    t+=f_('  P(det)   = 1 - \u220f(1 - AR_i)')+' = '+v(s(u.fusedDet))+'\n';
+    t+=f_('  \u03c3_pos   = \u221a(mean(\u03c3_i\u00b2))')+' = '+v(s(u.fusedRadius)+' m')+'\n';
+    t+=f_('  P(loss)  = \u220f P_loss_i')+' = '+v(sp(u.fusedTrackLoss))+'\n';
+    t+=f_('  P(IDsw)  = min_cam(P_pair)')+' = '+v(sp(u.fusedIdSwitch))+'\n';
+    t+=f_('  \u03c3_vel   = min(\u03c3_v_i)')+' = '+v(s2(u.fusedVelStd)+' m/s')+'\n';
+  }
+
+  el.innerHTML=t;
+}
+
+// Timeline seek
+document.getElementById('tl-track').addEventListener('click',e=>{
+  if(!currentScenario)return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  const dur=getScenarioDuration();
+  simTime=Math.max(0,Math.min(dur,pct*dur));
+  // Reset state for clean seek
+  trackHistories={};bikeMemory=[];blinkState=false;blinkTimer=0;
+  closingPairs=[];minDist=Infinity;decisionResult='idle';
+  frameCount=0;
+  update();drawBEV();drawFlow();updateTimeline();
+  document.getElementById('frame-counter').textContent='frame '+frameCount;
+  document.getElementById('sim-time').textContent='t = '+simTime.toFixed(2)+' s';
+});
+
+// Loop toggle
+document.getElementById('loop-toggle').addEventListener('click',()=>{
+  loopEnabled=!loopEnabled;
+  document.getElementById('loop-toggle').classList.toggle('active',loopEnabled);
+});
+
+function loadScenario(i){
+  currentScenario=SCENARIOS[i];simTime=0;frameCount=0;
+  trackHistories={};bikeMemory=[];blinkState=false;blinkTimer=0;
+  closingPairs=[];minDist=Infinity;decisionResult='idle';activeNodeId=null;activeOutputId=null;
+  document.querySelectorAll('.scn-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.getElementById('bev-badge').textContent=currentScenario.name;
+  document.getElementById('bev-badge').className='panel-badge badge-idle';
+  document.getElementById('scenario-info').textContent=currentScenario.challenge;
+  // Timeline
+  const dur=getScenarioDuration();
+  document.getElementById('tl-dur').textContent='/ '+dur.toFixed(1)+'s';
+  document.getElementById('tl-time').textContent='0.0s';
+  document.getElementById('tl-fill').style.width='0%';
+  buildTimelineMarkers();
+  drawBEV();drawFlow();
+}
+
+function buildTimelineMarkers(){
+  const cont=document.getElementById('tl-agents');
+  cont.innerHTML='';
+  if(!currentScenario)return;
+  const dur=getScenarioDuration();
+  for(const ag of currentScenario.agents){
+    const startT=ag.path[0].t;
+    const endT=ag.path[ag.path.length-1].t;
+    const left=(startT/dur*100)+'%';
+    const width=((endT-startT)/dur*100)+'%';
+    const bar=document.createElement('div');
+    bar.style.cssText=`position:absolute;top:${ag.type==='person'?'3px':'11px'};height:6px;left:${left};width:${width};border-radius:3px;opacity:0.5;background:${ag.type==='person'?'#dc2626':'#16a34a'};`;
+    cont.appendChild(bar);
+  }
+}
+
+function updateTimeline(){
+  if(!currentScenario)return;
+  const dur=getScenarioDuration();
+  const pct=Math.min(100,simTime/dur*100);
+  document.getElementById('tl-fill').style.width=pct+'%';
+  document.getElementById('tl-time').textContent=simTime.toFixed(1)+'s';
+}
+function resetSim(){if(currentScenario)loadScenario(SCENARIOS.indexOf(currentScenario));else{simTime=0;frameCount=0;trackHistories={};bikeMemory=[];drawBEV();drawFlow();updateTimeline();}}
+function togglePlay(){
+  playing=!playing;const btn=document.getElementById('play-btn');
+  btn.textContent=playing?'|| Pause':'\u25B6 Play';btn.classList.toggle('playing',playing);
+  if(playing){lastTs=performance.now();animFrame=requestAnimationFrame(tick);}else if(animFrame)cancelAnimationFrame(animFrame);
+}
+function tick(ts){
+  if(!playing)return;
+  simTime+=(ts-lastTs)/1000*(+document.getElementById('speed-slider').value);lastTs=ts;frameCount++;
+  // Loop or stop at end
+  const dur=getScenarioDuration();
+  if(simTime>=dur){
+    if(loopEnabled){
+      simTime=0;frameCount=0;trackHistories={};bikeMemory=[];
+      blinkState=false;blinkTimer=0;closingPairs=[];minDist=Infinity;
+      decisionResult='idle';activeNodeId=null;activeOutputId=null;
+    } else {
+      simTime=dur;playing=false;
+      document.getElementById('play-btn').textContent='\u25B6 Play';
+      document.getElementById('play-btn').classList.remove('playing');
+      update();drawBEV();drawFlow();updateTimeline();
+      return;
+    }
+  }
+  update();drawBEV();drawFlow();updateTimeline();
+  document.getElementById('frame-counter').textContent='frame '+frameCount;
+  document.getElementById('sim-time').textContent='t = '+simTime.toFixed(2)+' s';
+  animFrame=requestAnimationFrame(tick);
+}
+
+function agentPos(agent,t){
+  const p=agent.path;if(t<p[0].t||t>p[p.length-1].t)return null;
+  for(let i=0;i<p.length-1;i++){if(t>=p[i].t&&t<=p[i+1].t){const f=(t-p[i].t)/(p[i+1].t-p[i].t);return{x:p[i].x+(p[i+1].x-p[i].x)*f,y:p[i].y+(p[i+1].y-p[i].y)*f};}}
+  return null;
+}
+
+// ===== CAMERA VISIBILITY =====
+function camSeesPoint(cam,wx,wy){
+  const dx=wx-cam.x,dy=wy-cam.y;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  if(dist>25)return null;
+  if(dist<0.1)return{dist:0.1,sizeClass:'large'};
+  const angle=Math.atan2(dy,dx)*180/Math.PI;
+  let diff=angle-cam.heading;diff=((diff%360)+540)%360-180;
+  if(Math.abs(diff)>cam.fov/2)return null;
+  // Size class by apparent scale (height / distance proxy)
+  const apparentScale=cam.h/Math.max(dist,1);
+  const sizeClass=apparentScale>0.4?'large':apparentScale>0.15?'medium':'small';
+  return{dist,sizeClass};
+}
+
+function getVisibleCameras(wx,wy){
+  const result=[];
+  cameras.forEach((cam,i)=>{
+    const info=camSeesPoint(cam,wx,wy);
+    if(info)result.push({camIdx:i,...info});
+  });
+  return result;
+}
+
+// Kalman filter covariance growth after K missed frames (per-axis).
+// P_pos(K) = sigma_p^2 + 2K*sigma_pv + K^2*sigma_v^2 + K*q_p + q_v*K*(K-1)*(2K-1)/6
+// where q_p = (stdWeightPos*h)^2, q_v = (stdWeightVel*h)^2
+// sigma_p^2 = measurement noise variance = q_p (first detection)
+// sigma_v^2 = initial vel variance ~= 2*q_p (from differencing)
+// sigma_pv ~= 0 initially
+function kalmanPosVariance(K,h,kf){
+  const qp=Math.pow(kf.stdWeightPos*h,2);   // process noise position
+  const qv=Math.pow(kf.stdWeightVel*h,2);    // process noise velocity
+  const sigP2=qp;       // measurement-noise-level initial position variance
+  const sigV2=2*qp;     // initial velocity variance (from differencing)
+  const sigPV=0;         // initial cross-covariance
+  return sigP2 + 2*K*sigPV + K*K*sigV2 + K*qp + qv*K*(K-1)*(2*K-1)/6;
+}
+
+// Velocity estimation steady-state std (per-axis, in BEV-meters/frame)
+// sigma_v_steady ~ h * sqrt(stdWeightVel * stdWeightPos)
+// Convert to m/s by multiplying by fps then by world_scale (dist/h proxy)
+function kalmanVelStdWorld(h,dist,kf){
+  const sigVPixel=h*Math.sqrt(kf.stdWeightVel*kf.stdWeightPos);
+  // pixel -> world: multiply by (dist / h) approximately (pinhole inverse)
+  const worldPerPixel=dist/Math.max(h,1);
+  return sigVPixel*worldPerPixel*kf.fps; // m/s
+}
+
+// Track loss probability: after K frames with detection miss rate (1-detProb),
+// probability of consecutive K misses = (1-detProb)^K.
+// Track is deleted after maxTimeLost frames of consecutive misses.
+function trackLossProb(detProb,kf){
+  const missPerFrame=1-detProb;
+  // Probability the track survives = 1 - P(lost for maxTimeLost consecutive frames)
+  // P(K consecutive misses) = missPerFrame^K
+  // Per-frame "risk of entering a loss streak that reaches deletion":
+  //   P_loss = missPerFrame^maxTimeLost (probability of fatal streak starting now)
+  return Math.pow(missPerFrame,kf.maxTimeLost);
+}
+
+// ===== PIXEL-SPACE PROJECTION & ID SWITCH MODEL =====
+
+// Physical sizes (meters) — used for bbox projection
+const PHYS={person:{w:0.5,h:1.7},bike:{w:1.8,h:1.5}};
+const IMG_W=1920; // canonical image width in pixels
+
+// Standard normal CDF (Abramowitz & Stegun approximation)
+function normalCDF(x){
+  const t=1/(1+0.2316419*Math.abs(x));
+  const d=0.3989422804014327; // 1/sqrt(2*pi)
+  const p=d*Math.exp(-x*x/2)*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.8212560+t*1.3302744))));
+  return x>=0?1-p:p;
+}
+
+// Project a world point into a camera's pixel space (equidistant fisheye model).
+// Returns: {azPx, bboxW, bboxH} — pixel-space azimuthal offset from image center,
+// and bbox dimensions in pixels. Returns null if outside FOV.
+function projectToPixel(cam,wx,wy,agType){
+  const dx=wx-cam.x,dy=wy-cam.y;
+  const dGround=Math.sqrt(dx*dx+dy*dy);
+  if(dGround<0.01)return null;
+  const d3d=Math.sqrt(dGround*dGround+cam.h*cam.h);
+  // Azimuth relative to camera heading
+  const az=Math.atan2(dy,dx);
+  const hdgRad=cam.heading*Math.PI/180;
+  let azRel=az-hdgRad;
+  azRel=((azRel%( 2*Math.PI))+(3*Math.PI))%(2*Math.PI)-Math.PI; // wrap [-pi,pi]
+  const fovRad=cam.fov*Math.PI/180;
+  if(Math.abs(azRel)>fovRad/2)return null;
+  // Equidistant fisheye: pixel offset = f * angle
+  const f=IMG_W/fovRad;
+  const azPx=f*azRel;
+  // Object physical size
+  const phys=PHYS[agType]||PHYS.person;
+  // Angular width: object width / ground distance (small angle approx valid for d >> w)
+  const angW=2*Math.atan(phys.w/(2*dGround));
+  // Angular height: camera at height h, object on ground with physical height physH.
+  // Bottom of object at elevation atan(h / dGround) below optical axis,
+  // top at elevation atan((h - physH) / dGround).
+  // Angular extent = atan(h/dGround) - atan((h-physH)/dGround)
+  const elevBot=Math.atan2(cam.h,dGround);
+  const elevTop=Math.atan2(Math.max(cam.h-phys.h,0),dGround);
+  const angH=Math.abs(elevBot-elevTop);
+  const bboxW=f*angW;
+  const bboxH=f*angH;
+  return{azPx,bboxW,bboxH,dGround,d3d};
+}
+
+// IoU for two axis-aligned bounding boxes (1D overlap along azimuth axis,
+// multiplied by vertical overlap). Since agents are on the ground at similar heights,
+// vertical overlap is assumed ~1 for same-class and ~0.9 for cross-class.
+// The critical dimension for confusion is azimuthal (horizontal) separation.
+//
+// For two boxes centered at px_i, px_j with widths w_i, w_j and heights h_i, h_j:
+//   overlapX = max(0, min(w_i,w_j)/2 + min(w_i,w_j)/2 + min(w_i,w_j)/2 ... no.
+// Properly:
+//   overlapX = max(0, (w_i+w_j)/2 - |px_i - px_j|)
+//   overlapY = max(0, (h_i+h_j)/2 - |py_i - py_j|)
+//   intersection = overlapX * overlapY
+//   union = w_i*h_i + w_j*h_j - intersection
+//   IoU = intersection / union
+//
+// Here we assume vertical centers are at similar elevation so |py_i - py_j| ≈ 0
+// for objects at similar distances, or proportional to distance difference otherwise.
+function bboxIoU(px_i,w_i,h_i,px_j,w_j,h_j,dyPx){
+  const overlapX=Math.max(0,(w_i+w_j)/2-Math.abs(px_i-px_j));
+  const overlapY=Math.max(0,(h_i+h_j)/2-Math.abs(dyPx||0));
+  if(overlapX===0||overlapY===0)return 0;
+  const intersection=overlapX*overlapY;
+  const union=w_i*h_i+w_j*h_j-intersection;
+  return union>0?Math.min(intersection/union,1):0;
+}
+
+// Per-frame ID switch probability for a pair of agents (i, j) as seen from one camera.
+//
+// Model: ByteTrack uses IoU-based Hungarian assignment. The Kalman filter predicts
+// track i's next-frame bbox center with Gaussian noise:
+//   pred_i = true_i + N(0, sigma^2), where sigma = stdWeightPos * bboxH_i (SORT convention)
+//
+// An ID switch between tracks i and j occurs when the prediction noise shifts
+// pred_i closer to det_j than to det_i. In the azimuthal (dominant) dimension:
+//   P(swap) = P(|s - noise| < |noise|) where s = pixel separation
+//           = P(noise > s/2) for noise ~ N(0, sigma^2)
+//           = 1 - Phi(s / (2*sigma))
+//
+// But a swap only matters if the IoU at the swapped distance exceeds the match
+// threshold. If the objects are so far apart that even at the midpoint the IoU
+// is below threshold, no swap can happen.
+//
+// Additionally, both tracks must participate: the swap is favorable only if
+// j's prediction also prefers i's detection. Assuming independent noise:
+//   P(mutual swap) = P(noise_i > s/2) * P(noise_j > s/2)
+//
+// We gate this by: IoU at separation s/2 (midpoint) > iouThreshold.
+function pairIdSwitchProb(cam,pos_i,type_i,pos_j,type_j,kf){
+  const proj_i=projectToPixel(cam,pos_i.x,pos_i.y,type_i);
+  const proj_j=projectToPixel(cam,pos_j.x,pos_j.y,type_j);
+  if(!proj_i||!proj_j)return 0; // one not visible in this camera
+  const s=Math.abs(proj_i.azPx-proj_j.azPx); // pixel separation
+  // Kalman prediction noise std (SORT: stdWeightPos * bboxH)
+  const sigma_i=kf.stdWeightPos*proj_i.bboxH;
+  const sigma_j=kf.stdWeightPos*proj_j.bboxH;
+  if(sigma_i<0.01||sigma_j<0.01)return 0;
+  // P(noise_i > s/2)
+  const pShift_i=1-normalCDF(s/(2*sigma_i));
+  const pShift_j=1-normalCDF(s/(2*sigma_j));
+  // P(mutual swap) — both predictions must cross the midpoint
+  const pMutual=pShift_i*pShift_j;
+  // Gate: check if IoU at the midpoint distance exceeds the match threshold.
+  // At the midpoint, each bbox center is s/2 from the other's detection.
+  // The IoU between pred_i (shifted by s/2 toward j) and det_j (at distance s/2 from pred_i):
+  const dyPx=0; // same ground plane, vertical overlap assumed maximal
+  const iouAtMid=bboxIoU(0,proj_i.bboxW,proj_i.bboxH,s/2,proj_j.bboxW,proj_j.bboxH,dyPx);
+  if(iouAtMid<kf.iouThreshold)return 0; // even at midpoint, IoU too low for assignment
+  return pMutual;
+}
+
+// Per-agent ID switch probability: union over all pairwise probabilities.
+// For multi-camera: cameras provide independent pixel spaces. A swap is only
+// possible if it occurs in the pixel space that drives the association.
+// With fused detections, the camera with the *best angular resolution* of the pair
+// dominates the assignment. So: P(swap) = min over cameras of per-cam pairwise P.
+// Then union over all other agents j.
+function agentIdSwitchProb(pos,type,visCams,allVisible,kf){
+  let pNoSwap=1;
+  for(const other of allVisible){
+    if(other.pos.x===pos.x&&other.pos.y===pos.y)continue; // self
+    // For each camera, compute pairwise swap prob; take the minimum (best camera resolves it)
+    let pPairBest=1;
+    for(const vc of visCams){
+      const cam=cameras[vc.camIdx];
+      const pCam=pairIdSwitchProb(cam,pos,type,other.pos,other.type,kf);
+      pPairBest=Math.min(pPairBest,pCam);
+    }
+    pNoSwap*=(1-pPairBest);
+  }
+  return 1-pNoSwap;
+}
+
+// YOLO localization error from IoU → displacement.
+// For two identical axis-aligned boxes of width w offset by dx (1D):
+//   IoU = (w - dx) / (w + dx)  =>  dx = w * (1 - IoU) / (1 + IoU)
+// For 2D with equal fractional offset alpha = dx/w = dy/h:
+//   IoU = (1-alpha)^2 / (2*(1-alpha) + alpha^2 - (1-alpha)^2) ... complicated.
+// Use the 1D result per-axis as an upper bound, then RSS for 2D:
+//   sigma_yolo_1axis = bbox_dim * (1 - AP) / (1 + AP)
+// AP here is average over IoU thresholds 0.50:0.95; it represents the "typical"
+// quality of detections. This gives us the expected pixel displacement.
+function yoloLocErrPx(bboxDim,ap){
+  return bboxDim*(1-ap)/(1+ap);
+}
+
+function computeAgentUncertainty(pos,type,visCams,allVisible){
+  const U=UNCERTAINTY;
+  const kf=U.kf;
+  const phys=PHYS[type]||PHYS.person;
+  const perCam=visCams.map(vc=>{
+    const cam=cameras[vc.camIdx];
+    const yolo=U.yolo[vc.sizeClass];
+    const proj=projectToPixel(cam,pos.x,pos.y,type);
+    const fovRad=cam.fov*Math.PI/180;
+    const focalPx=IMG_W/fovRad;
+    const hPx=proj?proj.bboxH:1;
+    const wPx=proj?proj.bboxW:1;
+    // px → world conversion factor (equidistant fisheye at this distance)
+    const pxToWorld=vc.dist/Math.max(focalPx,1);
+
+    // 1. YOLO localization error (pixel space → world)
+    //    dx_px = w_px * (1-AP)/(1+AP), dy_px = h_px * (1-AP)/(1+AP)
+    //    sigma_yolo_world = sqrt(dx_world^2 + dy_world^2) / sqrt(2) [per-axis]
+    const dxPx=yoloLocErrPx(wPx,yolo.ap);
+    const dyPx=yoloLocErrPx(hPx,yolo.ap);
+    const yoloErrWorld=Math.sqrt(dxPx*dxPx+dyPx*dyPx)*pxToWorld;
+
+    // 2. BEV ground-plane projection error
+    //    sigma_bev = d * tan(angularErrorDeg)
+    const bevErr=vc.dist*Math.tan(U.bev.angularErrorDeg*Math.PI/180);
+
+    // 3. Kalman filter steady-state position std (pixel → world)
+    //    Process noise: q_p = (stdWeightPos * h_px)^2
+    //    At K=0 (tracked): P_pos = q_p (initial)
+    const qp=Math.pow(kf.stdWeightPos*hPx,2);
+    const qv=Math.pow(kf.stdWeightVel*hPx,2);
+    const kfPosVarPx=kalmanPosVariance(0,hPx,kf);
+    const kfPosWorld=Math.sqrt(kfPosVarPx)*pxToWorld;
+
+    // Combined position uncertainty (RSS of independent errors)
+    const posRadius=Math.sqrt(yoloErrWorld*yoloErrWorld + bevErr*bevErr + kfPosWorld*kfPosWorld);
+
+    // 4. Velocity estimation: sigma_v_px = h * sqrt(w_vel * w_pos)
+    //    sigma_v_world = sigma_v_px * pxToWorld * fps
+    const velStdPx=hPx*Math.sqrt(kf.stdWeightVel*kf.stdWeightPos);
+    const velStdWorld=velStdPx*pxToWorld*kf.fps;
+
+    // 5. Track loss: P(maxTimeLost consecutive misses)
+    const pTrackLoss=trackLossProb(yolo.ar,kf);
+
+    // 6. Position after max_lost frames (Kalman prediction-only drift)
+    const kfLostVarPx=kalmanPosVariance(kf.maxTimeLost,hPx,kf);
+    const kfLostWorld=Math.sqrt(kfLostVarPx)*pxToWorld;
+    const posRadiusLost=Math.sqrt(kfLostWorld*kfLostWorld + bevErr*bevErr);
+
+    return{camIdx:vc.camIdx,dist:vc.dist,sizeClass:vc.sizeClass,
+      detProb:yolo.ar,posRadius,velStdWorld,pTrackLoss,posRadiusLost,
+      // intermediates for math display
+      _proj:proj,_focalPx:focalPx,_pxToWorld:pxToWorld,
+      _dxPx:dxPx,_dyPx:dyPx,_yoloErrWorld:yoloErrWorld,
+      _bevErr:bevErr,_qp:qp,_qv:qv,
+      _kfPosVarPx:kfPosVarPx,_kfPosWorld:kfPosWorld,
+      _velStdPx:velStdPx,_kfLostVarPx:kfLostVarPx,_kfLostWorld:kfLostWorld};
+  });
+  // ID switch: pixel-space raycast
+  const pIdSwitch=agentIdSwitchProb(pos,type,visCams,allVisible,kf);
+  // Multi-camera fusion
+  const fusedDet=1-perCam.reduce((a,c)=>a*(1-c.detProb),1);
+  const fusedPosVar=perCam.length===1?perCam[0].posRadius*perCam[0].posRadius:
+    perCam.reduce((a,c)=>a+c.posRadius*c.posRadius,0)/perCam.length;
+  const fusedRadius=Math.sqrt(fusedPosVar);
+  const fusedVelStd=Math.min(...perCam.map(c=>c.velStdWorld));
+  const fusedTrackLoss=perCam.reduce((a,c)=>a*c.pTrackLoss,1);
+  const fusedLostRadius=Math.min(...perCam.map(c=>c.posRadiusLost));
+  return{perCam,fusedDet,fusedRadius,fusedVelStd,fusedTrackLoss,fusedIdSwitch:pIdSwitch,fusedLostRadius,numCams:perCam.length,_type:type,_pos:pos};
+}
+
+// ===== UPDATE =====
+function update(){
+  if(!currentScenario)return;
+  UNCERTAINTY=readUncertaintyParams();
+  currentAgents=[];personInScene=false;bikeInScene=false;closingPairs=[];minDist=Infinity;
+  // First pass: collect all visible agents with their positions and camera visibility
+  const allVisible=[];
+  for(const ag of currentScenario.agents){
+    const pos=agentPos(ag,simTime);
+    if(pos){
+      if(!trackHistories[ag.id])trackHistories[ag.id]=[];
+      trackHistories[ag.id].push({x:pos.x,y:pos.y,t:simTime});
+      if(trackHistories[ag.id].length>60)trackHistories[ag.id].shift();
+      const visCams=getVisibleCameras(pos.x,pos.y);
+      if(visCams.length>0)allVisible.push({...ag,pos,visCams});
+    }
+  }
+  // Second pass: compute uncertainty (needs allVisible for pairwise ID switch)
+  for(const av of allVisible){
+    const unc=computeAgentUncertainty(av.pos,av.type,av.visCams,allVisible);
+    currentAgents.push({...av,unc});
+    if(av.type==='person')personInScene=true;
+    if(av.type==='bike'){bikeInScene=true;bikeMemory.push(simTime);}
+  }
+  const memSec=currentPipeline.bikeMemoryFrames/30;
+  bikeMemory=bikeMemory.filter(t=>simTime-t<memSec);
+  bikeRecentlyDetected=bikeMemory.length>0;
+
+  proximityAlert=false;
+  const persons=currentAgents.filter(a=>a.type==='person');
+  const bikes=currentAgents.filter(a=>a.type==='bike');
+  const hasProx=currentPipeline.nodes.find(n=>n.id==='prox_chk');
+  // Port of decision_pipeline.DecisionPipeline.evaluate Stage 3. Estimates
+  // speed from trackHistories over a 4-sample window, and applies the
+  // per-pipeline decision_rule (pairwise/distance_only/naive_closing/ttc).
+  // Lookback is in simulation frames (k); on track history sampled at the
+  // render rate, we step back k entries.
+  if(hasProx){
+    const lookback=currentPipeline.lookbackFrames|0;
+    const decelMs2=scenarioBrakingDecel();
+    const PRT_S=0.84;
+    for(const bike of bikes){
+      const bHist=trackHistories[bike.id];
+      if(!bHist||bHist.length<2){
+        for(const ped of persons){const d=Math.sqrt((bike.pos.x-ped.pos.x)**2+(bike.pos.y-ped.pos.y)**2);if(d<minDist)minDist=d;}
+        continue;
+      }
+      // Speed estimate over up to 4 samples.
+      const nSpd=Math.min(4,bHist.length-1);
+      const s0=bHist[bHist.length-1-nSpd],s1=bHist[bHist.length-1];
+      const dt=Math.max(s1.t-s0.t,1e-6);
+      const vBike=Math.sqrt((s1.x-s0.x)**2+(s1.y-s0.y)**2)/dt;
+      let dMax=currentPipeline.proxMax;
+      if(currentPipeline.speedAdaptive){
+        const sd=stoppingDistance(vBike,decelMs2,PRT_S);
+        if(sd>dMax)dMax=sd;
+      }
+      for(const ped of persons){
+        const dx=bike.pos.x-ped.pos.x,dy=bike.pos.y-ped.pos.y;
+        const dCur=Math.sqrt(dx*dx+dy*dy);
+        if(dCur<minDist)minDist=dCur;
+        if(dCur<currentPipeline.proxMin||dCur>dMax)continue;
+        // distance_only: alert on proximity alone.
+        if(currentPipeline.rule==='distance_only'){
+          proximityAlert=true;closingPairs.push({bike:bike.id,ped:ped.id,dist:dCur});continue;
+        }
+        const pHist=trackHistories[ped.id];
+        if(!pHist||pHist.length<2)continue;
+        const lb=Math.min(lookback,bHist.length-1,pHist.length-1);
+        const pb=bHist[bHist.length-1-lb];
+        const pp=pHist[pHist.length-1-lb];
+        const bikeDisp=Math.sqrt((bike.pos.x-pb.x)**2+(bike.pos.y-pb.y)**2);
+        if(currentPipeline.rule==='ttc'){
+          if(bikeDisp<1e-6)continue;
+          const dtHist=Math.max(simTime-pb.t,1e-6);
+          const dPrev=Math.sqrt((pb.x-pp.x)**2+(pb.y-pp.y)**2);
+          const vClosing=-(dCur-dPrev)/dtHist;
+          if(vClosing>0.1){
+            const ttc=dCur/vClosing;
+            if(ttc<currentPipeline.ttcThreshold){proximityAlert=true;closingPairs.push({bike:bike.id,ped:ped.id,dist:dCur});}
+          }
+          continue;
+        }
+        if(currentPipeline.rule==='naive_closing'){
+          // bike past vs ped CURRENT
+          const dNaive=Math.sqrt((pb.x-ped.pos.x)**2+(pb.y-ped.pos.y)**2);
+          if(dCur<dNaive&&bikeDisp>currentPipeline.proxSpeedMin){proximityAlert=true;closingPairs.push({bike:bike.id,ped:ped.id,dist:dCur});}
+          continue;
+        }
+        // pairwise (default): both agents' historical positions
+        const dPrev=Math.sqrt((pb.x-pp.x)**2+(pb.y-pp.y)**2);
+        if(dCur<dPrev&&bikeDisp>currentPipeline.proxSpeedMin){proximityAlert=true;closingPairs.push({bike:bike.id,ped:ped.id,dist:dCur});}
+      }
+    }
+  } else {
+    for(const bike of bikes)for(const ped of persons){const d=Math.sqrt((bike.pos.x-ped.pos.x)**2+(bike.pos.y-ped.pos.y)**2);if(d<minDist)minDist=d;}
+  }
+
+  // Walk pipeline
+  activeNodeId=null;activeOutputId=null;decisionResult='idle';
+  const nodeMap={};currentPipeline.nodes.forEach(n=>nodeMap[n.id]=n);
+  // Processes always active
+  const procs=currentPipeline.nodes.filter(n=>n.type==='process');
+  if(procs.length)activeNodeId=procs[procs.length-1].id;
+  // Decisions
+  const pChk=nodeMap['person_chk'],bChk=nodeMap['bike_chk'],xChk=nodeMap['prox_chk'];
+  if(pChk){
+    activeNodeId=pChk.id;
+    if(!personInScene){activeOutputId=pChk.noTarget;decisionResult='idle';}
+    else{
+      const next=nodeMap[pChk.yesTarget];
+      if(next){
+        activeNodeId=next.id;
+        if(next.id==='bike_chk'){
+          const bc=currentPipeline.bikeMemoryFrames>0?bikeRecentlyDetected:bikeInScene;
+          if(!bc){activeOutputId=next.noTarget;decisionResult='safe';}
+          else{
+            const px=nodeMap[next.yesTarget];
+            if(px&&px.type==='decision'){
+              activeNodeId=px.id;
+              if(proximityAlert){activeOutputId=px.yesTarget;decisionResult='alert';}
+              else{activeOutputId=px.noTarget;decisionResult='warn';}
+            }else if(px&&px.type==='output'){activeOutputId=px.id;decisionResult='alert';}
+          }
+        }else if(next.id==='prox_chk'){
+          if(proximityAlert){activeOutputId=next.yesTarget;decisionResult='alert';}
+          else{activeOutputId=next.noTarget;decisionResult='safe';}
+        }
+      }
+    }
+  }
+
+  blinkTimer++;if(blinkTimer>=4){blinkState=!blinkState;blinkTimer=0;}
+
+  // Uncertainty annotations on pipeline nodes
+  currentPipeline.nodes.forEach(n=>{n._uncAnnotation=null;});
+  if(currentAgents.length>0){
+    let worstDist=0,worstUnc=null;
+    currentAgents.forEach(a=>{if(a.unc&&a.unc.perCam[0]&&a.unc.perCam[0].dist>worstDist){worstDist=a.unc.perCam[0].dist;worstUnc=a.unc;}});
+    if(worstUnc){
+      const wc=worstUnc.perCam[0];
+      const kf=UNCERTAINTY.kf;
+      if(nodeMap['detect'])nodeMap['detect']._uncAnnotation=
+        'AR:'+(wc.detProb*100).toFixed(0)+'% ('+wc.sizeClass+') | miss:'+(100-wc.detProb*100).toFixed(0)+'%/f | '+UNCERTAINTY.yolo.latencyMs+'ms';
+      if(nodeMap['classify'])nodeMap['classify']._uncAnnotation=
+        'pos \u00b1'+worstUnc.fusedRadius.toFixed(2)+'m @'+wc.dist.toFixed(0)+'m'+(worstUnc.numCams>1?' ('+worstUnc.numCams+'cam)':'');
+      if(nodeMap['track'])nodeMap['track']._uncAnnotation=
+        'vel\u00b1'+(worstUnc.fusedVelStd).toFixed(1)+'m/s IDsw:'+(worstUnc.fusedIdSwitch*100).toFixed(1)+'% loss:'+(worstUnc.fusedTrackLoss*1e6).toFixed(1)+'ppm';
+    }
+  }
+
+  // Update badges
+  const bdg=document.getElementById('pipeline-badge'),bev=document.getElementById('bev-badge');
+  const sd=document.getElementById('status-dot'),st=document.getElementById('status-text');
+  const map={alert:['badge-alert','ALERT','--red'],warn:['badge-warn','WARNING','--orange'],safe:['badge-safe','SAFE','--green'],idle:['badge-idle','IDLE','--blue']};
+  const m=map[decisionResult];
+  bdg.className='panel-badge '+m[0];bdg.textContent=m[1];
+  bev.className='panel-badge '+m[0];bev.textContent=m[1];
+  sd.style.background='var('+m[2]+')';st.textContent=m[1];
+
+  document.getElementById('tel-obj').textContent=currentAgents.length;
+  document.getElementById('tel-trk').textContent=Object.keys(trackHistories).filter(k=>currentAgents.some(a=>a.id==k)).length;
+  document.getElementById('tel-dist').textContent=minDist<Infinity?minDist.toFixed(1)+'m':'--';
+  buildMathBreakdown();
+}
+
+// ===== DRAW FLOWCHART =====
+function drawFlow(){
+  const W=flowCanvas.width,H=flowCanvas.height,dpr=devicePixelRatio,c=flowCtx;
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#f8f9fb';c.fillRect(0,0,W,H);
+  // Dot grid
+  c.fillStyle='#e2e5ea';
+  for(let x=0;x<W;x+=20*dpr)for(let y=0;y<H;y+=20*dpr){c.beginPath();c.arc(x,y,.5*dpr,0,Math.PI*2);c.fill();}
+
+  const pipe=currentPipeline,nodes=pipe.nodes;
+  const procs=nodes.filter(n=>n.type==='process');
+  const decs=nodes.filter(n=>n.type==='decision');
+  const outs=nodes.filter(n=>n.type==='output');
+  const chain=[...procs,...decs]; // main vertical chain
+
+  // Sizing
+  const nw=180*dpr, nh=54*dpr;   // process (taller for uncertainty line)
+  const dw=140*dpr, dh=70*dpr;   // decision diamond (visual)
+  const ow=120*dpr, oh=42*dpr;   // output pill
+  const vgap=14*dpr;
+  const detailGap=20*dpr; // gap below diamond for detail text
+  const margin=24*dpr;
+  const colX=W*0.32; // main column center X
+  const outColX=colX+dw/2+90*dpr; // output column center X
+
+  // Compute Y positions for main chain
+  const pos={};
+  let curY=margin;
+  chain.forEach(node=>{
+    const isDec=node.type==='decision';
+    const h=isDec?dh+detailGap:nh;
+    pos[node.id]={x:colX,y:curY,w:isDec?dw:nw,h:isDec?dh:nh,totalH:h,type:node.type};
+    curY+=h+vgap;
+  });
+
+  // Position outputs: each output sits to the right of its parent decision,
+  // vertically centered on the Y where the arrow exits the diamond.
+  // We track which Y slots are taken to avoid overlap.
+  const usedOutputYs=[];
+  function placeOutput(nodeId,parentDecId,branch){
+    const dp=pos[parentDecId];if(!dp)return;
+    // The arrow exits from the right tip of the diamond at its vertical center
+    let targetY=dp.y+dp.h/2;
+    // Nudge to avoid overlap
+    for(const uy of usedOutputYs){
+      if(Math.abs(targetY-uy)<oh+8*dpr){
+        targetY=uy+oh+10*dpr;
+      }
+    }
+    usedOutputYs.push(targetY);
+    pos[nodeId]={x:outColX,y:targetY-oh/2,w:ow,h:oh,totalH:oh,type:'output',parentDec:parentDecId,branch};
+  }
+
+  // Walk decisions and place their outputs
+  decs.forEach(dn=>{
+    // NO branch
+    if(dn.noTarget){const outN=nodes.find(n=>n.id===dn.noTarget&&n.type==='output');if(outN)placeOutput(dn.noTarget,dn.id,'no');}
+    // YES branch (only if it points to an output, not another decision)
+    if(dn.yesTarget){const outY=nodes.find(n=>n.id===dn.yesTarget&&n.type==='output');if(outY)placeOutput(dn.yesTarget,dn.id,'yes');}
+  });
+
+  // ---- Draw connections ----
+
+  // Straight vertical arrows in main chain
+  for(let i=0;i<chain.length-1;i++){
+    const a=pos[chain[i].id],b=pos[chain[i+1].id];if(!a||!b)continue;
+    const isAct=playing&&activeNodeId&&(chain[i+1].id===activeNodeId||chain.slice(0,i+2).some(n=>n.id===activeNodeId));
+    const col=isAct?'#2563eb':'#c8cdd5';
+    // For decisions, arrow starts below the detail text (totalH includes detailGap)
+    const arrowStartY = chain[i].type==='decision' ? a.y+a.totalH : a.y+a.h;
+    arrowV(c,a.x,arrowStartY,b.x,b.y,col,dpr);
+    // YES label on the arrow segment below the detail text
+    if(chain[i].type==='decision'){
+      const labelY=arrowStartY+(b.y-arrowStartY)*0.55;
+      c.font=`600 ${9*dpr}px 'DM Mono',monospace`;c.fillStyle=isAct?'#2563eb':'#8e93a4';
+      c.textAlign='left';c.fillText('YES',a.x+6*dpr,labelY);c.textAlign='start';
+    }
+  }
+
+  // Decision -> output connections
+  // Group outputs by parent decision, draw a single shared vertical trunk, then horizontal branches
+  const outputsByParent={};
+  outs.forEach(outNode=>{
+    const op=pos[outNode.id];if(!op||!op.parentDec)return;
+    if(!outputsByParent[op.parentDec])outputsByParent[op.parentDec]=[];
+    outputsByParent[op.parentDec].push({outNode,op});
+  });
+
+  Object.entries(outputsByParent).forEach(([parentId,entries])=>{
+    const dp=pos[parentId];if(!dp)return;
+    const fromX=dp.x+dp.w/2; // right tip of diamond
+    const fromY=dp.y+dp.h/2;
+    const trunkX=fromX+22*dpr; // single vertical trunk X
+
+    // Find the Y range the trunk needs to cover
+    const ys=entries.map(e=>e.op.y+e.op.h/2);
+    const minY=Math.min(fromY,...ys);
+    const maxY=Math.max(fromY,...ys);
+
+    // Draw trunk: horizontal from diamond tip, then vertical span
+    // (draw as inactive color; active branches will overdraw)
+    c.strokeStyle='#c8cdd5';c.lineWidth=1.5*dpr;c.setLineDash([]);
+    c.beginPath();c.moveTo(fromX,fromY);c.lineTo(trunkX,fromY);c.stroke();
+    c.beginPath();c.moveTo(trunkX,minY);c.lineTo(trunkX,maxY);c.stroke();
+
+    // Draw each horizontal branch from trunk to output
+    entries.forEach(({outNode,op})=>{
+      const isAct=playing&&activeOutputId===outNode.id;
+      const col=isAct?getOutputColor(outNode):'#c8cdd5';
+      const label=op.branch==='no'?'NO':'YES';
+      const toX=op.x-op.w/2;
+      const toY=op.y+op.h/2;
+
+      // Overdraw the trunk segment and horizontal from diamond if active
+      if(isAct){
+        c.strokeStyle=col;c.lineWidth=1.5*dpr;c.setLineDash([]);
+        c.beginPath();c.moveTo(fromX,fromY);c.lineTo(trunkX,fromY);c.stroke();
+        c.beginPath();c.moveTo(trunkX,fromY);c.lineTo(trunkX,toY);c.stroke();
+      }
+
+      // Horizontal branch from trunk to output
+      c.strokeStyle=col;c.lineWidth=1.5*dpr;c.setLineDash([]);
+      c.beginPath();c.moveTo(trunkX,toY);c.lineTo(toX,toY);c.stroke();
+
+      // Arrowhead
+      const al=6*dpr;
+      c.fillStyle=col;c.beginPath();
+      c.moveTo(toX,toY);c.lineTo(toX-al,toY-al*.5);c.lineTo(toX-al,toY+al*.5);c.closePath();c.fill();
+
+      // Label to the right of the trunk, on the horizontal branch
+      c.font=`600 ${8*dpr}px 'DM Mono',monospace`;c.fillStyle=isAct?col:'#8e93a4';
+      c.textAlign='left';c.fillText(label,trunkX-17*dpr,toY-5*dpr);c.textAlign='start';
+    });
+  });
+
+  // ---- Draw nodes ----
+  chain.forEach(node=>{
+    const p=pos[node.id];if(!p)return;
+    const isAct=playing&&activeNodeId===node.id;
+    if(node.type==='process')drawProcNode(c,p,node,isAct,dpr);
+    else drawDiamondNode(c,p,node,isAct,dpr);
+  });
+  outs.forEach(node=>{
+    const p=pos[node.id];if(!p)return;
+    const isAct=playing&&activeOutputId===node.id;
+    drawOutNode(c,p,node,isAct,dpr);
+  });
+
+  // Pipeline label
+  c.font=`500 ${10*dpr}px 'DM Mono',monospace`;c.fillStyle='#8e93a4';c.textAlign='left';
+  c.fillText('Pipeline: '+pipe.name,margin,H-margin);c.textAlign='start';
+}
+
+function arrowV(c,x1,y1,x2,y2,col,dpr){
+  c.strokeStyle=col;c.lineWidth=1.5*dpr;c.setLineDash([]);
+  c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
+  const al=6*dpr;c.fillStyle=col;c.beginPath();
+  c.moveTo(x2,y2);c.lineTo(x2-al*.5,y2-al);c.lineTo(x2+al*.5,y2-al);c.closePath();c.fill();
+}
+
+function getOutputColor(node){
+  if(node.id.includes('alert')||node.label.includes('RED'))return'#dc2626';
+  if(node.id.includes('warn')||node.label.includes('ORANGE'))return'#ea580c';
+  if(node.id.includes('safe')||node.label.includes('GREEN'))return'#16a34a';
+  return'#3b82f6';
+}
+
+function roundRect(c,x,y,w,h,r){
+  c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();
+}
+
+function drawProcNode(c,p,node,isAct,dpr){
+  const x=p.x-p.w/2,y=p.y,w=p.w,h=p.h;
+  c.fillStyle=isAct?'#e8f0fe':'#fff';c.strokeStyle=isAct?'#2563eb':'#dfe2e8';c.lineWidth=(isAct?2:1)*dpr;
+  roundRect(c,x,y,w,h,6*dpr);c.fill();c.stroke();
+  if(isAct){c.shadowColor='rgba(37,99,235,0.12)';c.shadowBlur=10*dpr;c.fill();c.shadowBlur=0;c.shadowColor='transparent';}
+  c.font=`600 ${10*dpr}px 'Instrument Sans',sans-serif`;c.fillStyle=isAct?'#1e40af':'#2d3142';c.textAlign='center';
+  c.fillText(node.label,p.x,p.y+h*.3);
+  c.font=`400 ${8*dpr}px 'DM Mono',monospace`;c.fillStyle='#8e93a4';
+  c.fillText(node.detail,p.x,p.y+h*.56);
+  // Uncertainty annotation
+  if(node._uncAnnotation){
+    c.font=`400 ${7*dpr}px 'DM Mono',monospace`;c.fillStyle='#b45309';
+    c.fillText(node._uncAnnotation,p.x,p.y+h*.82);
+  }
+  c.textAlign='start';
+}
+
+function drawDiamondNode(c,p,node,isAct,dpr){
+  const cx=p.x,cy=p.y+p.h/2,hw=p.w/2,hh=p.h/2;
+  let fill='#fffde7',stroke='#dfe2e8';
+  if(isAct){
+    if(node.id==='person_chk'){fill=personInScene?'#e8f5e9':'#e3f2fd';stroke=personInScene?'#16a34a':'#3b82f6';}
+    else if(node.id==='bike_chk'){fill=bikeRecentlyDetected?'#fff3e0':'#e8f5e9';stroke=bikeRecentlyDetected?'#ea580c':'#16a34a';}
+    else if(node.id==='prox_chk'){fill=proximityAlert?'#ffebee':'#fff3e0';stroke=proximityAlert?'#dc2626':'#ea580c';}
+    else{fill='#e8f0fe';stroke='#2563eb';}
+  }
+  c.beginPath();c.moveTo(cx,cy-hh);c.lineTo(cx+hw,cy);c.lineTo(cx,cy+hh);c.lineTo(cx-hw,cy);c.closePath();
+  c.fillStyle=fill;c.strokeStyle=stroke;c.lineWidth=(isAct?2:1)*dpr;c.fill();c.stroke();
+  if(isAct){c.shadowColor=stroke+'22';c.shadowBlur=10*dpr;c.fill();c.shadowBlur=0;c.shadowColor='transparent';}
+  // Label INSIDE diamond (just the question)
+  c.font=`600 ${9.5*dpr}px 'Instrument Sans',sans-serif`;c.fillStyle=isAct?stroke:'#2d3142';c.textAlign='center';
+  c.fillText(node.label,cx,cy+3*dpr);
+  // Detail text BELOW diamond
+  c.font=`400 ${7.5*dpr}px 'DM Mono',monospace`;c.fillStyle='#8e93a4';
+  c.fillText(node.detail,cx,cy+hh+12*dpr);
+  c.textAlign='start';
+}
+
+function drawOutNode(c,p,node,isAct,dpr){
+  const x=p.x-p.w/2,y=p.y,w=p.w,h=p.h;
+  const col=getOutputColor(node);
+  let fill='#f8f9fb',stroke='#dfe2e8',tc='#5c6070';
+  if(isAct){
+    if(col==='#dc2626'){fill='#fef2f2';stroke='#dc2626';}
+    else if(col==='#ea580c'){fill='#fff7ed';stroke='#ea580c';}
+    else if(col==='#16a34a'){fill='#f0fdf4';stroke='#16a34a';}
+    else{fill='#eff6ff';stroke='#3b82f6';}
+    tc=stroke;
+  }
+  // Rounded rect
+  roundRect(c,x,y,w,h,8*dpr);
+  c.fillStyle=fill;c.strokeStyle=stroke;c.lineWidth=(isAct?2:1)*dpr;c.fill();c.stroke();
+  if(isAct){c.shadowColor=stroke+'22';c.shadowBlur=8*dpr;c.fill();c.shadowBlur=0;c.shadowColor='transparent';}
+
+  // Light indicator circle
+  const lx=x+14*dpr,ly=y+h*.35;
+  c.beginPath();c.arc(lx,ly,4.5*dpr,0,Math.PI*2);
+  c.fillStyle=isAct?col:'#c8cdd5';
+  if(isAct&&node.label.includes('BLINK')&&blinkState)c.fillStyle='#ddd';
+  c.fill();
+  // Light label
+  c.font=`700 ${9*dpr}px 'Instrument Sans',sans-serif`;c.fillStyle=tc;c.textAlign='left';
+  c.fillText('\uD83D\uDCA1 '+node.label,lx+9*dpr,ly+3*dpr);
+
+  // Sound row
+  const soundLabel=node.sound||'NONE';
+  c.font=`400 ${8*dpr}px 'DM Mono',monospace`;c.fillStyle=isAct?tc:'#8e93a4';
+  c.fillText('\uD83D\uDD0A '+soundLabel,lx,y+h*.75+3*dpr);
+  c.textAlign='start';
+}
+
+// ===== DRAW BEV =====
+function drawBEV(){
+  const W=bevCanvas.width,H=bevCanvas.height,dpr=devicePixelRatio,c=bevCtx;
+  const maxRange=25,scale=Math.min(W,H)*.38/maxRange;
+
+  // View centered on intersection midpoint (crosswalk center)
+  const viewX=5,viewY=0;
+  const scrCx=W/2,scrCy=H/2;
+  function w2s(wx,wy){return[scrCx+(wy-viewY)*scale,scrCy-(wx-viewX)*scale];}
+
+  c.fillStyle='#f2f3f6';c.fillRect(0,0,W,H);
+  c.fillStyle='#dfe2e8';
+  for(let x=0;x<W;x+=20*dpr)for(let y=0;y<H;y+=20*dpr){c.beginPath();c.arc(x,y,.6*dpr,0,Math.PI*2);c.fill();}
+
+  // Multi-camera overlap zones
+  if(cameras.length>=2){
+    const step=1.5;
+    for(let wx=-5;wx<=25;wx+=step){
+      for(let wy=-15;wy<=15;wy+=step){
+        let n=0;cameras.forEach(cam=>{if(camSeesPoint(cam,wx,wy))n++;});
+        if(n>=2){const[sx,sy]=w2s(wx,wy);const[sx2,sy2]=w2s(wx+step,wy+step);
+          c.fillStyle='rgba(124,58,237,'+(0.04*n)+')';c.fillRect(Math.min(sx,sx2),Math.min(sy,sy2),Math.abs(sx2-sx),Math.abs(sy2-sy));}
+      }
+    }
+  }
+
+  // Crosswalk (absolute world: x=5, y=-12..12, 3m wide)
+  const [cwTL_x,cwTL_y]=w2s(5+1.5,-12);
+  const [cwBR_x,cwBR_y]=w2s(5-1.5,12);
+  const cwLeft=Math.min(cwTL_x,cwBR_x),cwTop=Math.min(cwTL_y,cwBR_y);
+  const cwW=Math.abs(cwBR_x-cwTL_x),cwH=Math.abs(cwBR_y-cwTL_y);
+  c.fillStyle='rgba(0,0,0,0.03)';c.fillRect(cwLeft,cwTop,cwW,cwH);
+  c.strokeStyle='rgba(0,0,0,0.08)';c.lineWidth=1*dpr;c.strokeRect(cwLeft,cwTop,cwW,cwH);
+  c.fillStyle='rgba(0,0,0,0.06)';
+  for(let wy=-11;wy<11;wy+=2.5){const[sx,sy]=w2s(5+1.2,wy);const[sx2,sy2]=w2s(5-1.2,wy+1.2);c.fillRect(sx,sy,sx2-sx,sy2-sy);}
+  c.fillStyle='#8e93a4';c.font=`400 ${9*dpr}px 'DM Mono',monospace`;
+  const[cwLbl_x,cwLbl_y]=w2s(5+1.5,-12);c.fillText('crosswalk',cwLbl_x-18*dpr,cwLbl_y-4*dpr);
+
+  // Draw all cameras
+  cameras.forEach((cam,idx)=>{
+    const[cSx,cSy]=w2s(cam.x,cam.y);
+    const isActive=idx===activeCamIdx;
+    // FOV cone
+    const hdgRad=cam.heading*Math.PI/180;
+    const fovRad=(cam.fov/2)*Math.PI/180,fovLen=22*scale;
+    const coneCenter=-Math.PI/2+hdgRad;
+    c.fillStyle=hexToRgba(cam.color,0.04);c.beginPath();c.moveTo(cSx,cSy);
+    c.lineTo(cSx+Math.cos(coneCenter-fovRad)*fovLen,cSy+Math.sin(coneCenter-fovRad)*fovLen);
+    c.arc(cSx,cSy,fovLen,coneCenter-fovRad,coneCenter+fovRad,false);c.closePath();c.fill();
+    c.strokeStyle=hexToRgba(cam.color,isActive?0.3:0.12);c.lineWidth=(isActive?2:1)*dpr;c.stroke();
+    // Range rings for active camera only
+    if(isActive){
+      c.font=`400 ${10*dpr}px 'DM Mono',monospace`;
+      for(const r of [5,10,15,20,25]){
+        const rpx=r*scale;c.strokeStyle='#dfe2e8';c.lineWidth=1*dpr;
+        c.beginPath();c.arc(cSx,cSy,rpx,0,Math.PI*2);c.stroke();
+        c.fillStyle='#8e93a4';c.fillText(r+'m',cSx+4*dpr,cSy-rpx+12*dpr);
+      }
+    }
+    // Camera marker
+    c.beginPath();c.arc(cSx,cSy,(isActive?6:4)*dpr,0,Math.PI*2);c.fillStyle=cam.color;c.fill();
+    c.strokeStyle='#fff';c.lineWidth=2*dpr;c.stroke();
+    c.fillStyle=cam.color;c.font=`${isActive?600:500} ${9*dpr}px 'DM Mono',monospace`;c.fillText(cam.label,cSx+10*dpr,cSy+3*dpr);
+  });
+
+  // Warning indicators (fixed bottom-center)
+  const indY=H-60*dpr;
+  let lightCol,soundCol,lightTxt,soundTxt;
+  if(decisionResult==='alert'){lightCol=blinkState?'#dc2626':'#888';lightTxt='RED BLINK';soundCol='#dc2626';soundTxt='BIKE BELL';}
+  else if(decisionResult==='warn'){lightCol='#ea580c';lightTxt='ORANGE';soundCol='#8e93a4';soundTxt='NONE';}
+  else if(decisionResult==='safe'){lightCol='#16a34a';lightTxt='GREEN';soundCol='#16a34a';soundTxt='GO SIGNAL';}
+  else{lightCol='#3b82f6';lightTxt='BLUE';soundCol='#8e93a4';soundTxt='NONE';}
+
+  const pillW=130*dpr,pillH=22*dpr,pillGap=4*dpr,pillX=W/2-pillW/2;
+  c.fillStyle='rgba(255,255,255,0.85)';c.strokeStyle='#dfe2e8';c.lineWidth=1*dpr;
+  roundRect(c,pillX,indY,pillW,pillH,pillH/2);c.fill();c.stroke();
+  c.beginPath();c.arc(pillX+14*dpr,indY+pillH/2,4*dpr,0,Math.PI*2);c.fillStyle=lightCol;c.fill();
+  c.font=`600 ${9*dpr}px 'Instrument Sans',sans-serif`;c.fillStyle='#2d3142';c.textAlign='left';
+  c.fillText('\uD83D\uDCA1 '+lightTxt,pillX+22*dpr,indY+pillH/2+3*dpr);
+  const sndY=indY+pillH+pillGap;
+  c.fillStyle='rgba(255,255,255,0.85)';c.strokeStyle='#dfe2e8';c.lineWidth=1*dpr;
+  roundRect(c,pillX,sndY,pillW,pillH,pillH/2);c.fill();c.stroke();
+  c.beginPath();c.arc(pillX+14*dpr,sndY+pillH/2,4*dpr,0,Math.PI*2);c.fillStyle=soundCol;c.fill();
+  c.font=`600 ${9*dpr}px 'Instrument Sans',sans-serif`;c.fillStyle='#2d3142';
+  c.fillText('\uD83D\uDD0A '+soundTxt,pillX+22*dpr,sndY+pillH/2+3*dpr);
+  c.textAlign='start';
+
+  if(!currentScenario){
+    c.fillStyle='#8e93a4';c.font=`400 ${14*dpr}px 'Instrument Sans',sans-serif`;
+    c.textAlign='center';c.fillText('Select a scenario',W/2,H/2);c.textAlign='start';return;
+  }
+
+  // Draw agents
+  for(const agent of currentScenario.agents){
+    const hist=trackHistories[agent.id];if(!hist||!hist.length)continue;
+    const isPed=agent.type==='person';
+    const col=isPed?'#dc2626':'#16a34a';
+    const colA=isPed?'rgba(220,38,38,':'rgba(22,163,74,';
+    // Trail
+    if(hist.length>1)for(let i=1;i<hist.length;i++){
+      const[ax,ay]=w2s(hist[i-1].x,hist[i-1].y);const[bx,by]=w2s(hist[i].x,hist[i].y);
+      c.strokeStyle=colA+(i/hist.length*.6)+')';c.lineWidth=2.5*dpr;c.beginPath();
+      c.moveTo(ax,ay);c.lineTo(bx,by);c.stroke();
+    }
+    const pos=agentPos(agent,simTime);if(!pos)continue;
+    const[sx,sy]=w2s(pos.x,pos.y);
+
+    // Find this agent's uncertainty data
+    const detected=currentAgents.find(a=>a.id===agent.id);
+    const unc=detected?detected.unc:null;
+
+    // Uncertainty circle (drawn before dot)
+    if(unc){
+      const r1=unc.fusedRadius*scale;
+      // 68% confidence ring
+      c.beginPath();c.arc(sx,sy,r1,0,Math.PI*2);
+      c.fillStyle=isPed?'rgba(220,38,38,0.06)':'rgba(22,163,74,0.06)';c.fill();
+      c.strokeStyle=isPed?'rgba(220,38,38,0.2)':'rgba(22,163,74,0.2)';c.lineWidth=1.5*dpr;c.stroke();
+      // 95% confidence ring (2x)
+      c.beginPath();c.arc(sx,sy,r1*2,0,Math.PI*2);
+      c.strokeStyle=isPed?'rgba(220,38,38,0.08)':'rgba(22,163,74,0.08)';c.lineWidth=1*dpr;c.setLineDash([3*dpr,3*dpr]);c.stroke();c.setLineDash([]);
+    }
+
+    // Detection opacity based on probability
+    const detProb=unc?unc.fusedDet:0;
+    c.globalAlpha=unc?0.3+0.7*detProb:0.25;
+
+    // Glow
+    const gr=c.createRadialGradient(sx,sy,0,sx,sy,14*dpr);gr.addColorStop(0,colA+'0.18)');gr.addColorStop(1,colA+'0)');
+    c.fillStyle=gr;c.fillRect(sx-14*dpr,sy-14*dpr,28*dpr,28*dpr);
+    // Dot
+    c.beginPath();c.arc(sx,sy,6*dpr,0,Math.PI*2);c.fillStyle=col;c.fill();c.strokeStyle='#fff';c.lineWidth=2*dpr;c.stroke();
+    c.globalAlpha=1;
+
+    // Label
+    c.font=`600 ${10*dpr}px 'Instrument Sans',sans-serif`;c.fillStyle='#2d3142';
+    c.fillText(isPed?'PED':'BIKE',sx+10*dpr,sy-5*dpr);
+    // Speed
+    if(hist.length>=2){
+      const p1=hist[hist.length-2],p2=hist[hist.length-1],dt=p2.t-p1.t;
+      if(dt>0){c.font=`400 ${9*dpr}px 'DM Mono',monospace`;c.fillStyle='#8e93a4';
+        c.fillText((Math.sqrt((p2.x-p1.x)**2+(p2.y-p1.y)**2)/dt*2.237).toFixed(0)+' mph',sx+10*dpr,sy+7*dpr);}
+    }
+    // Uncertainty stats
+    if(unc){
+      c.font=`400 ${8*dpr}px 'DM Mono',monospace`;c.fillStyle='#8e93a4';
+      c.fillText('det:'+(unc.fusedDet*100).toFixed(0)+'% \u00b1'+unc.fusedRadius.toFixed(2)+'m v\u00b1'+unc.fusedVelStd.toFixed(1)+'m/s',sx+10*dpr,sy+17*dpr);
+      if(unc.numCams>1||unc.fusedIdSwitch>0.001){
+        c.fillStyle=unc.numCams>1?'#7c3aed':'#8e93a4';
+        c.fillText((unc.numCams>1?unc.numCams+'cam ':'')+'IDsw:'+(unc.fusedIdSwitch*100).toFixed(1)+'%',sx+10*dpr,sy+27*dpr);
+      }
+    }
+  }
+
+  // Proximity lines
+  for(const pair of closingPairs){
+    const ba=currentAgents.find(a=>a.id===pair.bike),pa=currentAgents.find(a=>a.id===pair.ped);
+    if(!ba||!pa)continue;
+    const[bx,by]=w2s(ba.pos.x,ba.pos.y);const[px,py]=w2s(pa.pos.x,pa.pos.y);
+    c.strokeStyle='rgba(220,38,38,0.5)';c.lineWidth=1.5*dpr;c.setLineDash([4*dpr,4*dpr]);
+    c.beginPath();c.moveTo(bx,by);c.lineTo(px,py);c.stroke();c.setLineDash([]);
+    c.fillStyle='#dc2626';c.font=`700 ${11*dpr}px 'DM Mono',monospace`;
+    c.fillText(pair.dist.toFixed(1)+'m',(bx+px)/2+4*dpr,(by+py)/2-4*dpr);
+  }
+
+  // Title
+  c.fillStyle='#2d3142';c.font=`700 ${12*dpr}px 'Instrument Sans',sans-serif`;c.fillText("BIRD'S EYE VIEW",12*dpr,22*dpr);
+  c.fillStyle='#8e93a4';c.font=`400 ${10*dpr}px 'DM Mono',monospace`;
+  c.fillText(cameras.length+' camera'+(cameras.length>1?'s':''),12*dpr,36*dpr);
+}
+
+resizeAll();loadScenario(0);
+</script>
+</body>
+</html>

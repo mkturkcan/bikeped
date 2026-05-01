@@ -18,6 +18,7 @@
   <a href="https://arxiv.org/abs/2604.17046">📄 Paper</a> ·
   <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped">🤗 Dataset</a> ·
   <a href="https://mkturkcan.github.io/bikeped/">📖 API docs</a> ·
+  <a href="https://mkturkcan.github.io/bikeped/simulator/">🎮 Simulator</a> ·
   <a href="bridge_starter/">🛠️ Adaptation kit</a> ·
   <a href="#reproduce-paper-results">🔁 Reproduce</a>
 </p>
@@ -29,6 +30,7 @@
 | | |
 |---|---|
 | **`bridge_starter/`** | Drop-in adaptation kit. One self-contained script with a USER CONFIG block at the top, a simulated indicator light, optional sounds, and an auto-downloaded YOLO11xxl detector. Start here if you want to deploy on a different intersection. |
+| **`simulator/index.html`** | Interactive browser-based testbench (no install — open the file). Renders the decision pipeline live with all 24 conformance scenarios and the seven pipeline / decision-rule variants from the paper. Hosted at [mkturkcan.github.io/bikeped/simulator/](https://mkturkcan.github.io/bikeped/simulator/). |
 | **`decision_pipeline.py` + `decision_testbench.py`** | The three-stage decision logic and the offline scenario runner used for every number in the paper. |
 | **`run_experiments.py`** | One command that reproduces every table and figure. |
 | **`calibration/`** | Fisheye intrinsic calibration (perspective remap + bundle adjustment). |
@@ -128,16 +130,16 @@ Selected parameters (optimizer-derived): `N=58` frames, `d=[1.9, 24.8]` m, lookb
 
 21 of the 24 contain ground-truth danger intervals. The E-Scooter and Accelerating E-Bike scenarios use the e-bicycle braking profile (decel = 6.0 m/s²). Per-frame waypoint paths and danger labels — plus paired schematic + CARLA-photorealistic videos for every scenario — are published as the [bikeped dataset](https://huggingface.co/datasets/mehmetkeremturkcan/bikeped).
 
-## API documentation
+## Documentation
 
-Live: **<https://mkturkcan.github.io/bikeped/>** — auto-generated from the module and function docstrings via [pdoc](https://pdoc.dev), served by GitHub Pages from the [`docs/`](docs/) folder of this repo.
+Live: **<https://mkturkcan.github.io/bikeped/>** — built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) and [mkdocstrings](https://mkdocstrings.github.io), populated from this README plus every module's docstrings. Hosted on GitHub Pages from the [`docs/`](docs/) folder of this repo.
 
 To rebuild locally:
 
 ```bash
-pip install pdoc
+pip install mkdocs-material "mkdocstrings[python]" pymdown-extensions
 python tools/build_docs.py            # builds docs/
-python tools/build_docs.py --serve    # live preview on http://localhost:8080
+python tools/build_docs.py --serve    # live preview on http://localhost:8000
 python tools/build_docs.py --open     # build and open in default browser
 ```
 
@@ -173,10 +175,13 @@ repo/bikeped/
 │   ├── eval_models.py                 YOLO eval on fisheye-augmented COCO
 │   └── carla_find_crosswalks.py       crosswalk extractor for CARLA maps
 │
-└── bridge_starter/                    drop-in adaptation kit (self-contained)
+├── simulator/                        interactive browser testbench
+│   └── index.html                    self-contained HTML/JS (open in any browser)
+│
+└── bridge_starter/                   drop-in adaptation kit (self-contained)
     ├── README.md
-    ├── bridge.py                      slim live system with USER CONFIG block
-    ├── decision_pipeline.py           (mirror of the top-level file)
+    ├── bridge.py                     slim live system with USER CONFIG block
+    ├── decision_pipeline.py          (mirror of the top-level file)
     ├── requirements.txt
     └── .gitignore
 ```
