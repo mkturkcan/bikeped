@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Real-time pedestrian–cyclist collision warning for urban intersections.</strong><br/>
-  One edge device. One wide-angle fisheye camera. 30 fps, ~30 ms processing latency.
+  30 FPS response system designed for Jetson Orin devices.
 </p>
 
 <p align="center">
