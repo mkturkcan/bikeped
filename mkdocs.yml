@@ -1,0 +1,124 @@
+site_name: bikeped
+site_description: Real-time pedestrian–cyclist collision warning for urban intersections.
+site_url: https://mkturkcan.github.io/bikeped/
+site_dir: docs
+docs_dir: docs_src
+repo_url: https://github.com/mkturkcan/bikeped
+repo_name: mkturkcan/bikeped
+edit_uri: ""
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mkturkcan/bikeped
+    - icon: fontawesome/solid/file-lines
+      link: https://arxiv.org/abs/2604.17046
+    - icon: fontawesome/solid/database
+      link: https://huggingface.co/datasets/mehmetkeremturkcan/bikeped
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [., calibration, tools]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_object_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_signature: true
+            show_signature_annotations: true
+            separate_signature: true
+            line_length: 88
+            members_order: source
+            docstring_style: google
+            heading_level: 2
+            merge_init_into_class: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Core:
+    - decision_pipeline: api/decision_pipeline.md
+    - decision_testbench: api/decision_testbench.md
+    - sim_visualizer: api/sim_visualizer.md
+    - generate_figures: api/generate_figures.md
+    - run_experiments: api/run_experiments.md
+    - run_height_pitch_sweep: api/run_height_pitch_sweep.md
+    - crosswalk_analysis: api/crosswalk_analysis.md
+  - Calibration:
+    - calibrate_fisheye: api/calibrate_fisheye.md
+    - capture_calibration: api/capture_calibration.md
+    - compare_fisheye_models: api/compare_fisheye_models.md
+  - Tools:
+    - eval_models: api/eval_models.md
+    - latency_report: api/latency_report.md
+
+copyright: bikeped — companion code for arXiv:2604.17046

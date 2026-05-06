@@ -29,12 +29,88 @@ from decision_testbench import (
     load_camera_calibration, FisheyeCamera,
 )
 
+try:
+    from PIL import Image, ImageDraw, ImageFont
+    _PIL_AVAILABLE = True
+except ImportError:
+    _PIL_AVAILABLE = False
+
 # Camera presets from index.html
 CAM_POLE = {'x': 5.0, 'y': -13.0, 'h': 3.6576, 'heading_deg': 90.0}
 CAM_CROSS = {'x': 5.0, 'y': 13.0, 'h': 3.6576, 'heading_deg': 270.0}
 
-IMG_W = 640
-IMG_H = 480
+IMG_W = 1080
+IMG_H = 1080
+
+# TrueType font candidates (regular, bold). First readable pair wins.
+_FONT_CANDIDATES = [
+    ('C:/Windows/Fonts/segoeui.ttf', 'C:/Windows/Fonts/segoeuib.ttf'),
+    ('C:/Windows/Fonts/arial.ttf',   'C:/Windows/Fonts/arialbd.ttf'),
+    ('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+     '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'),
+    ('/System/Library/Fonts/Helvetica.ttc',
+     '/System/Library/Fonts/Helvetica.ttc'),
+]
+_font_cache: dict = {}
+
+
+def _get_font(size: int, bold: bool = False):
+    if not _PIL_AVAILABLE:
+        return None
+    key = (int(size), bool(bold))
+    if key in _font_cache:
+        return _font_cache[key]
+    for reg_path, bold_path in _FONT_CANDIDATES:
+        path = bold_path if bold else reg_path
+        try:
+            f = ImageFont.truetype(path, int(size))
+            _font_cache[key] = f
+            return f
+        except (OSError, IOError):
+            continue
+    f = ImageFont.load_default()
+    _font_cache[key] = f
+    return f
+
+
+def draw_text(frame, text, pos, size_px, color, bold=False):
+    """Anti-aliased text via PIL TrueType (with cv2 Hershey fallback).
+
+    `pos` is the top-left corner of the text bounding box; `color` is BGR.
+    Falls back to cv2.putText with Duplex when PIL is unavailable.
+    """
+    x, y = int(pos[0]), int(pos[1])
+    font = _get_font(size_px, bold=bold) if _PIL_AVAILABLE else None
+    if font is None:
+        scale = max(0.3, size_px / 32.0)
+        thick = max(1, int(round(scale * (2 if bold else 1.5))))
+        # cv2 baseline-bottom-left origin: shift down by size_px
+        cv2.putText(frame, text, (x, y + int(size_px)),
+                    cv2.FONT_HERSHEY_DUPLEX, scale, color, thick, cv2.LINE_AA)
+        return
+
+    h_frame, w_frame = frame.shape[:2]
+    try:
+        bbox = font.getbbox(text)
+        tw = bbox[2] - bbox[0]
+        th = bbox[3] - bbox[1]
+    except Exception:
+        tw = int(size_px * len(text) * 0.6)
+        th = int(size_px * 1.3)
+    pad = 4
+    x0 = max(0, x - pad)
+    y0 = max(0, y - pad)
+    x1 = min(w_frame, x + tw + pad + 8)
+    y1 = min(h_frame, y + th + pad + 8)
+    if x0 >= x1 or y0 >= y1:
+        return
+
+    roi = frame[y0:y1, x0:x1]
+    pil_roi = Image.fromarray(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_roi)
+    rgb = (int(color[2]), int(color[1]), int(color[0]))
+    draw.text((x - x0, y - y0), text, font=font, fill=rgb)
+    frame[y0:y1, x0:x1] = cv2.cvtColor(np.asarray(pil_roi), cv2.COLOR_RGB2BGR)
 
 # Load calibration
 _CALIB = load_camera_calibration()
@@ -116,7 +192,7 @@ class FisheyeRenderer:
 
 def draw_ground_grid(frame, renderer, spacing=2.0, extent=50.0):
     """Draw a ground-plane grid through the fisheye projection."""
-    color = (50, 50, 50)
+    color = (110, 110, 110)
     step = 0.5  # finer interpolation for smooth curves under fisheye
     # Lines along x
     for y in np.arange(-extent, extent + spacing, spacing):
@@ -126,7 +202,7 @@ def draw_ground_grid(frame, renderer, spacing=2.0, extent=50.0):
             if valid[i] and valid[i+1]:
                 p1 = (int(pts_2d[i, 0]), int(pts_2d[i, 1]))
                 p2 = (int(pts_2d[i+1, 0]), int(pts_2d[i+1, 1]))
-                cv2.line(frame, p1, p2, color, 1)
+                cv2.line(frame, p1, p2, color, 2, cv2.LINE_AA)
     # Lines along y
     for x in np.arange(-extent, extent + spacing, spacing):
         pts_3d = np.array([[x, y, 0.0] for y in np.arange(-extent, extent + step, step)])
@@ -135,7 +211,7 @@ def draw_ground_grid(frame, renderer, spacing=2.0, extent=50.0):
             if valid[i] and valid[i+1]:
                 p1 = (int(pts_2d[i, 0]), int(pts_2d[i, 1]))
                 p2 = (int(pts_2d[i+1, 0]), int(pts_2d[i+1, 1]))
-                cv2.line(frame, p1, p2, color, 1)
+                cv2.line(frame, p1, p2, color, 2, cv2.LINE_AA)
 
 
 def draw_crosswalk(frame, renderer):
@@ -151,7 +227,7 @@ def draw_crosswalk(frame, renderer):
         pts_2d, valid = renderer.project(corners)
         if np.all(valid):
             poly = pts_2d.astype(np.int32).reshape(-1, 1, 2)
-            cv2.fillPoly(frame, [poly], (60, 60, 80))
+            cv2.fillPoly(frame, [poly], (140, 140, 170))
 
 
 def draw_agent_3d(frame, renderer, agent, trail):
@@ -165,11 +241,11 @@ def draw_agent_3d(frame, renderer, agent, trail):
 
     if is_person:
         obj = OBJECT_TYPES['pedestrian']
-        color = (80, 80, 255)
+        color = (140, 140, 255)
         label = f"P{agent['id']}"
     else:
         obj = OBJECT_TYPES['cyclist']
-        color = (80, 255, 80)
+        color = (160, 255, 160)
         label = f"B{agent['id']}"
 
     corners = object_3d_corners(x, y, obj, heading)
@@ -182,30 +258,42 @@ def draw_agent_3d(frame, renderer, agent, trail):
              (4,5),(5,6),(6,7),(7,4),  # top
              (0,4),(1,5),(2,6),(3,7)]  # verticals
 
+    # Translucent fill for visible faces (top + 4 sides) so the box reads as a solid volume
+    faces = [(0,1,2,3), (4,5,6,7), (0,1,5,4), (1,2,6,5), (2,3,7,6), (3,0,4,7)]
+    overlay = frame.copy()
+    for face in faces:
+        if all(valid[k] for k in face):
+            poly = np.array([[int(pts_2d[k, 0]), int(pts_2d[k, 1])] for k in face],
+                            dtype=np.int32).reshape(-1, 1, 2)
+            cv2.fillPoly(overlay, [poly], color)
+    cv2.addWeighted(overlay, 0.35, frame, 0.65, 0, dst=frame)
+
     for i, j in edges:
         if valid[i] and valid[j]:
             p1 = (int(pts_2d[i, 0]), int(pts_2d[i, 1]))
             p2 = (int(pts_2d[j, 0]), int(pts_2d[j, 1]))
-            cv2.line(frame, p1, p2, color, 1, cv2.LINE_AA)
+            cv2.line(frame, p1, p2, color, 4, cv2.LINE_AA)
 
     # Label at top center
     top_center = np.array([[x, y, obj.height + 0.3]])
     lbl_px, lbl_valid = renderer.project(top_center)
     if lbl_valid[0]:
-        lp = (int(lbl_px[0, 0]) + 5, int(lbl_px[0, 1]))
-        cv2.putText(frame, label, lp,
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
+        draw_text(frame, label,
+                  (int(lbl_px[0, 0]) + 8, int(lbl_px[0, 1]) - 22),
+                  20, color, bold=True)
 
     # Trail on ground
     if len(trail) >= 2:
         trail_pts = np.array([[p[0], p[1], 0.0] for p in trail[-30:]])
         t_2d, t_valid = renderer.project(trail_pts)
+        trail_color = (min(255, color[0]*2//3 + 60),
+                       min(255, color[1]*2//3 + 60),
+                       min(255, color[2]*2//3 + 60))
         for i in range(len(t_2d) - 1):
             if t_valid[i] and t_valid[i+1]:
                 p1 = (int(t_2d[i, 0]), int(t_2d[i, 1]))
                 p2 = (int(t_2d[i+1, 0]), int(t_2d[i+1, 1]))
-                cv2.line(frame, p1, p2, (color[0]//3, color[1]//3, color[2]//3),
-                         1, cv2.LINE_AA)
+                cv2.line(frame, p1, p2, trail_color, 3, cv2.LINE_AA)
 
 
 def draw_proximity_line(frame, renderer, bx, by, px, py):
@@ -215,11 +303,11 @@ def draw_proximity_line(frame, renderer, bx, by, px, py):
     if np.all(valid):
         p1 = (int(pts_2d[0, 0]), int(pts_2d[0, 1]))
         p2 = (int(pts_2d[1, 0]), int(pts_2d[1, 1]))
-        cv2.line(frame, p1, p2, (0, 0, 200), 1, cv2.LINE_AA)
+        cv2.line(frame, p1, p2, (220, 220, 220), 2, cv2.LINE_AA)
         d = sqrt((bx - px)**2 + (by - py)**2)
         mid = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
-        cv2.putText(frame, f"{d:.1f}m", (mid[0]+3, mid[1]-3),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 200), 1)
+        draw_text(frame, f"{d:.1f} m", (mid[0] + 6, mid[1] - 22),
+                  16, (235, 235, 235), bold=True)
 
 
 def draw_hud(frame, scenario_name, t, duration, state, danger, cam_label=""):
@@ -230,43 +318,50 @@ def draw_hud(frame, scenario_name, t, duration, state, danger, cam_label=""):
     # Scenario name + camera label
     title = scenario_name
     if cam_label:
-        title += f" [{cam_label}]"
-    cv2.putText(frame, title, (8, 18),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (220, 220, 220), 1)
-    cv2.putText(frame, f"t={t:.2f}s / {duration:.1f}s", (8, 36),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.35, (140, 140, 140), 1)
+        title += f"  ·  {cam_label}"
+    draw_text(frame, title, (20, 16), 28, (240, 240, 240), bold=True)
+    draw_text(frame, f"t = {t:.2f} s   /   {duration:.1f} s",
+              (20, 54), 18, (175, 175, 175))
 
-    # State badge
+    # State badge (top-right)
     label = STATE_LABELS.get(state, state.upper())
-    cv2.rectangle(frame, (w - 110, 6), (w - 6, 30), state_color, -1)
-    cv2.putText(frame, label, (w - 105, 24),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    badge_w, badge_h = 232, 60
+    bx, by = w - badge_w - 20, 14
+    cv2.rectangle(frame, (bx, by), (bx + badge_w, by + badge_h),
+                  state_color, -1, cv2.LINE_AA)
+    cv2.rectangle(frame, (bx, by), (bx + badge_w, by + badge_h),
+                  (255, 255, 255), 2, cv2.LINE_AA)
+    draw_text(frame, label, (bx + 18, by + 14), 28, (255, 255, 255), bold=True)
 
-    # Danger info
+    # Danger / speed info (white so it stays legible on the dark frame)
     if danger.is_danger:
-        cv2.putText(frame, f"DANGER sev={danger.severity:.2f} v={danger.bike_speed:.1f}m/s",
-                    (8, h - 28), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+        draw_text(frame,
+                  f"DANGER   sev = {danger.severity:.2f}   v = {danger.bike_speed:.1f} m/s",
+                  (20, h - 86), 22, (255, 255, 255), bold=True)
         if danger.ttc < 100:
-            cv2.putText(frame, f"TTC={danger.ttc:.1f}s d_stop={danger.stopping_dist:.1f}m",
-                        (8, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+            draw_text(frame,
+                      f"TTC = {danger.ttc:.1f} s     d_stop = {danger.stopping_dist:.1f} m",
+                      (20, h - 56), 18, (255, 255, 255))
 
     # Progress bar
     progress = t / max(duration, 0.01)
-    bar_y = h - 4
-    cv2.rectangle(frame, (6, bar_y), (w - 6, bar_y + 3), (60, 60, 60), -1)
-    bw = int((w - 12) * progress)
-    cv2.rectangle(frame, (6, bar_y), (6 + bw, bar_y + 3), state_color, -1)
+    bar_y = h - 18
+    cv2.rectangle(frame, (20, bar_y), (w - 20, bar_y + 6),
+                  (70, 70, 70), -1, cv2.LINE_AA)
+    bw = int((w - 40) * progress)
+    cv2.rectangle(frame, (20, bar_y), (20 + bw, bar_y + 6),
+                  state_color, -1, cv2.LINE_AA)
 
 
 def draw_bev_radar(agents, trail_history, cam_x, cam_y, heading_deg, state,
-                   bev_w=200, bev_h=200, max_range=25.0):
+                   bev_w=300, bev_h=300, max_range=25.0):
     """Draw a bird's-eye-view radar showing agent positions relative to camera.
 
     The camera's forward direction (heading) points up in the BEV.
     This matches mqtt_bridge's BEV where the camera is at the origin
     and forward = +x (displayed as up).
     """
-    bev = np.full((bev_h, bev_w, 3), 30, dtype=np.uint8)
+    bev = np.full((bev_h, bev_w, 3), 60, dtype=np.uint8)
 
     # Camera at bottom center
     cx = bev_w // 2
@@ -291,15 +386,15 @@ def draw_bev_radar(agents, trail_history, cam_x, cam_y, heading_deg, state,
     # Range rings
     for r_m in [5, 10, 15, 20, 25]:
         r_px = int(r_m * scale)
-        cv2.circle(bev, (cx, cy), r_px, (50, 50, 50), 1)
+        cv2.circle(bev, (cx, cy), r_px, (95, 95, 95), 1, cv2.LINE_AA)
         if r_m % 10 == 0:
             label_y = cy - r_px
-            if 5 < label_y < bev_h - 5:
-                cv2.putText(bev, f"{r_m}m", (cx + 3, label_y + 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.25, (80, 80, 80), 1)
+            if 8 < label_y < bev_h - 16:
+                draw_text(bev, f"{r_m} m", (cx + 6, label_y - 4),
+                          12, (170, 170, 170))
 
     # Camera marker
-    cv2.circle(bev, (cx, cy), 3, (255, 255, 255), -1)
+    cv2.circle(bev, (cx, cy), 5, (255, 255, 255), -1, cv2.LINE_AA)
 
     # Agents
     for a in agents:
@@ -309,7 +404,10 @@ def draw_bev_radar(agents, trail_history, cam_x, cam_y, heading_deg, state,
             continue
 
         is_person = a['type'] == 'person'
-        color = (80, 80, 255) if is_person else (80, 255, 80)
+        color = (140, 140, 255) if is_person else (160, 255, 160)
+        trail_col = (min(255, color[0]*2//3 + 60),
+                     min(255, color[1]*2//3 + 60),
+                     min(255, color[2]*2//3 + 60))
 
         # Trail
         trail = trail_history.get(a['id'], [])
@@ -319,40 +417,48 @@ def draw_bev_radar(agents, trail_history, cam_x, cam_y, heading_deg, state,
                 tx2, ty2 = world_to_bev(trail[i+1][0], trail[i+1][1])
                 if (0 <= tx1 < bev_w and 0 <= ty1 < bev_h and
                     0 <= tx2 < bev_w and 0 <= ty2 < bev_h):
-                    cv2.line(bev, (tx1, ty1), (tx2, ty2),
-                             (color[0]//3, color[1]//3, color[2]//3), 1)
+                    cv2.line(bev, (tx1, ty1), (tx2, ty2), trail_col, 2,
+                             cv2.LINE_AA)
 
-        cv2.circle(bev, (bev_x, bev_y), 4, color, -1)
+        cv2.circle(bev, (bev_x, bev_y), 7, color, -1, cv2.LINE_AA)
         label = f"P{a['id']}" if is_person else f"B{a['id']}"
-        cv2.putText(bev, label, (bev_x + 5, bev_y - 3),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.25, color, 1)
+        draw_text(bev, label, (bev_x + 9, bev_y - 18), 13, color, bold=True)
 
     # State indicator
     state_color = STATE_COLORS.get(state, (128, 128, 128))
-    cv2.rectangle(bev, (2, 2), (bev_w - 3, 12), state_color, -1)
-    cv2.putText(bev, STATE_LABELS.get(state, state.upper()), (5, 10),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.28, (255, 255, 255), 1)
+    cv2.rectangle(bev, (4, 4), (bev_w - 5, 26), state_color, -1, cv2.LINE_AA)
+    draw_text(bev, STATE_LABELS.get(state, state.upper()),
+              (10, 6), 14, (255, 255, 255), bold=True)
 
     return bev
 
 
-def draw_sensor_boundary(frame, renderer):
-    """Draw horizontal lines showing the physical sensor boundary.
+def draw_sensor_boundary_lines(frame, renderer):
+    """Draw the horizontal sensor-boundary lines.
 
     Pixels above the top line and below the bottom line fall outside
-    the 3840x2160 sensor and would not be captured.
+    the 3840x2160 sensor and would not be captured. The lines are drawn
+    early so agent labels can sit on top of them.
     """
     v_min = max(0, renderer.sensor_v_min)
     v_max = min(frame.shape[0] - 1, renderer.sensor_v_max)
     w = frame.shape[1]
     color = (0, 140, 140)
-    cv2.line(frame, (0, v_min), (w, v_min), color, 1)
-    cv2.line(frame, (0, v_max), (w, v_max), color, 1)
-    # Dim the outside regions
+    cv2.line(frame, (0, v_min), (w, v_min), color, 2, cv2.LINE_AA)
+    cv2.line(frame, (0, v_max), (w, v_max), color, 2, cv2.LINE_AA)
+
+
+def dim_sensor_outside(frame, renderer):
+    """Dim the regions outside the physical sensor footprint.
+
+    Applied after agents so anything drawn outside the captured field
+    of view is visually attenuated."""
+    v_min = max(0, renderer.sensor_v_min)
+    v_max = min(frame.shape[0] - 1, renderer.sensor_v_max)
     if v_min > 0:
-        frame[:v_min] = frame[:v_min] // 3
+        frame[:v_min] = (frame[:v_min].astype(np.uint16) * 7 // 10).astype(np.uint8)
     if v_max < frame.shape[0]:
-        frame[v_max:] = frame[v_max:] // 3
+        frame[v_max:] = (frame[v_max:].astype(np.uint16) * 7 // 10).astype(np.uint8)
 
 
 def draw_error_vector(frame, renderer, true_x, true_y, obs_x, obs_y, err_m):
@@ -364,14 +470,14 @@ def draw_error_vector(frame, renderer, true_x, true_y, obs_x, obs_y, err_m):
     if v_true[0] and v_obs[0]:
         p1 = (int(px_true[0, 0]), int(px_true[0, 1]))
         p2 = (int(px_obs[0, 0]), int(px_obs[0, 1]))
-        # Yellow dashed error line
-        cv2.line(frame, p1, p2, (0, 255, 255), 1, cv2.LINE_AA)
+        # Error vector
+        cv2.line(frame, p1, p2, (0, 255, 255), 2, cv2.LINE_AA)
         # Observed position marker (hollow circle)
-        cv2.circle(frame, p2, 5, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.circle(frame, p2, 9, (0, 255, 255), 2, cv2.LINE_AA)
         # Error label
         mid = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
-        cv2.putText(frame, f"{err_m:.2f}m", (mid[0] + 3, mid[1] - 3),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.25, (0, 255, 255), 1)
+        draw_text(frame, f"{err_m:.2f} m", (mid[0] + 6, mid[1] - 22),
+                  14, (0, 255, 255), bold=True)
 
 
 def render_camera_frame(renderer, agents, trail_history, prox_max,
@@ -383,10 +489,13 @@ def render_camera_frame(renderer, agents, trail_history, prox_max,
     If error_data is provided (list of dicts with true_x/y, obs_x/y, err_m),
     draws error vectors from true to observed positions.
     """
-    frame = np.full((IMG_H, IMG_W, 3), 20, dtype=np.uint8)
+    frame = np.full((IMG_H, IMG_W, 3), 70, dtype=np.uint8)
 
     draw_ground_grid(frame, renderer, spacing=2.0, extent=25.0)
     draw_crosswalk(frame, renderer)
+
+    # Sensor boundary lines first, so agent labels sit on top of them
+    draw_sensor_boundary_lines(frame, renderer)
 
     # Proximity lines
     persons = [a for a in agents if a['type'] == 'person']
@@ -409,21 +518,25 @@ def render_camera_frame(renderer, agents, trail_history, prox_max,
                               ed['true_x'], ed['true_y'],
                               ed['obs_x'], ed['obs_y'], ed['err_m'])
 
-    # Sensor boundary (dims regions outside the physical 3840x2160 sensor)
-    draw_sensor_boundary(frame, renderer)
+    # Dim regions outside the physical 3840x2160 sensor (after agents)
+    dim_sensor_outside(frame, renderer)
 
     draw_hud(frame, scenario_name, t, duration, state, danger, cam_label)
 
     # BEV radar overlay (bottom-right)
-    bev_w, bev_h = 180, 180
+    bev_w, bev_h = 300, 300
     bev = draw_bev_radar(agents, trail_history, cam_x, cam_y, heading_deg,
                          state, bev_w, bev_h)
-    margin = 6
-    y1 = IMG_H - bev_h - margin
+    margin = 14
+    y1 = IMG_H - bev_h - margin - 32  # leave room for progress bar
     x1 = IMG_W - bev_w - margin
     roi = frame[y1:y1+bev_h, x1:x1+bev_w]
-    cv2.addWeighted(bev, 0.85, roi, 0.15, 0, dst=roi)
+    cv2.addWeighted(bev, 0.92, roi, 0.08, 0, dst=roi)
     frame[y1:y1+bev_h, x1:x1+bev_w] = roi
+    # Subtle frame around the radar
+    cv2.rectangle(frame, (x1 - 1, y1 - 1),
+                  (x1 + bev_w, y1 + bev_h),
+                  (200, 200, 200), 1, cv2.LINE_AA)
 
     return frame
 
