@@ -1,0 +1,42 @@
+<svg class="bp-fig" viewBox="0 0 760 400" role="img" aria-labelledby="carla-dataflow-title" xmlns="http://www.w3.org/2000/svg">
+<title id="carla-dataflow-title">Data flow of one CARLA render, from the scenario to the files in the run directory</title>
+<defs><marker id="carla-dataflow-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-muted"/></marker></defs>
+<rect class="box" x="20" y="24" width="170" height="84" rx="10"/>
+<text class="t-title" x="36" y="50">Scenario</text>
+<text class="t-small t-mono t-muted" x="36" y="72">bikeped.scenarios</text>
+<text class="t-small t-muted" x="36" y="92">paths, models, hints</text>
+<line class="line" x1="190" y1="66" x2="232" y2="66" marker-end="url(#carla-dataflow-arrow)"/>
+<rect class="box-accent" x="235" y="24" width="220" height="84" rx="10"/>
+<text class="t-title" x="251" y="50">Runner</text>
+<text class="t-small t-muted" x="251" y="72">session, actors, camera rigs</text>
+<text class="t-small t-muted" x="251" y="92">one tick advances 1 / fps seconds</text>
+<line class="line" x1="455" y1="66" x2="497" y2="66" marker-end="url(#carla-dataflow-arrow)"/>
+<rect class="box" x="500" y="24" width="240" height="84" rx="10"/>
+<text class="t-title t-mono" x="516" y="50">FrameRecord</text>
+<text class="t-small t-muted" x="516" y="72">agent poses, camera models, images</text>
+<text class="t-small t-muted" x="516" y="92">one per tick</text>
+<line class="line" x1="315" y1="108" x2="315" y2="165" marker-end="url(#carla-dataflow-arrow)"/>
+<text class="t-small t-faint t-end" x="305" y="141">spawn, move, tick</text>
+<line class="line" x1="375" y1="168" x2="375" y2="111" marker-end="url(#carla-dataflow-arrow)"/>
+<text class="t-small t-faint" x="385" y="141">poses, images</text>
+<rect class="box-2" x="235" y="168" width="220" height="84" rx="10"/>
+<text class="t-title" x="251" y="194">CARLA server</text>
+<text class="t-small t-muted" x="251" y="216">UE4 (0.9.14 to 0.9.16) or UE5 (0.10.0)</text>
+<text class="t-small t-muted" x="251" y="236">synchronous mode</text>
+<line class="line" x1="620" y1="108" x2="620" y2="165" marker-end="url(#carla-dataflow-arrow)"/>
+<rect class="box-cyan" x="500" y="168" width="240" height="84" rx="10"/>
+<text class="t-title" x="516" y="194">Decision and danger label</text>
+<text class="t-small t-mono t-muted" x="516" y="216">DecisionPipeline.evaluate</text>
+<text class="t-small t-mono t-muted" x="516" y="236">compute_ground_truth_danger</text>
+<line class="line" x1="620" y1="252" x2="620" y2="309" marker-end="url(#carla-dataflow-arrow)"/>
+<rect class="box" x="500" y="312" width="240" height="64" rx="10"/>
+<text class="t-title" x="516" y="338">Recorder</text>
+<text class="t-small t-muted" x="516" y="358">writes the run directory</text>
+<line class="line" x1="500" y1="344" x2="458" y2="344" marker-end="url(#carla-dataflow-arrow)"/>
+<rect class="box-2" x="20" y="312" width="435" height="64" rx="10"/>
+<text class="t-small t-mono t-faint" x="36" y="334">renders/&lt;run_id&gt;/</text>
+<text class="t-mono" x="36" y="358">manifest.json</text>
+<text class="t-mono" x="164" y="358">video/*.mp4</text>
+<text class="t-mono" x="277" y="358">gt/*.jsonl</text>
+<text class="t-mono" x="382" y="358">stills/</text>
+</svg>

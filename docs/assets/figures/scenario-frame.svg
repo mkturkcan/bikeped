@@ -1,0 +1,44 @@
+<svg class="bp-fig" viewBox="0 0 760 420" role="img" aria-labelledby="scenario-frame-title" xmlns="http://www.w3.org/2000/svg">
+<title id="scenario-frame-title">Scenario coordinate frame seen from above: x along the road, y across it, crosswalk centred at (5, 0), camera at (5, -13)</title>
+<defs>
+<marker id="scenario-frame-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-muted"/></marker>
+<marker id="scenario-frame-arrow-amber" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-amber"/></marker>
+<marker id="scenario-frame-arrow-cyan" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-cyan"/></marker>
+</defs>
+<rect x="139" y="32" width="42" height="336" rx="4" class="ground"/>
+<path d="M509.8 394.2A350 350 0 0 0 75.3 42.4" class="line-faint dash"/>
+<line x1="62" y1="200" x2="606" y2="200" class="line" marker-end="url(#scenario-frame-arrow)"/>
+<line x1="90" y1="392" x2="90" y2="28" class="line" marker-end="url(#scenario-frame-arrow)"/>
+<path d="M160 200v6M230 200v6M300 200v6M370 200v6M440 200v6M510 200v6M580 200v6" class="line"/>
+<path d="M90 340h-6M90 270h-6M90 130h-6M90 60h-6" class="line"/>
+<text x="84" y="216" class="t-muted t-small t-end">0</text>
+<text x="230" y="220" class="t-muted t-small t-mid">10</text>
+<text x="300" y="220" class="t-muted t-small t-mid">15</text>
+<text x="370" y="220" class="t-muted t-small t-mid">20</text>
+<text x="440" y="220" class="t-muted t-small t-mid">25</text>
+<text x="510" y="220" class="t-muted t-small t-mid">30</text>
+<text x="580" y="220" class="t-muted t-small t-mid">35</text>
+<text x="78" y="344" class="t-muted t-small t-end">-10</text>
+<text x="78" y="274" class="t-muted t-small t-end">-5</text>
+<text x="78" y="134" class="t-muted t-small t-end">5</text>
+<text x="78" y="64" class="t-muted t-small t-end">10</text>
+<text x="614" y="204">x (m)</text>
+<text x="614" y="220" class="t-muted t-small">along the road</text>
+<text x="90" y="16" class="t-mid">y (m)</text>
+<text x="116" y="16" class="t-muted t-small">across the road</text>
+<line x1="566" y1="172" x2="204" y2="172" class="line s-amber" marker-end="url(#scenario-frame-arrow-amber)"/>
+<circle cx="566" cy="172" r="5" class="f-amber"/>
+<circle cx="370" cy="172" r="3" class="f-amber"/>
+<text x="250" y="162" class="t-amber">cyclist path</text>
+<text x="576" y="176" class="t-mono t-small t-muted">x: 34, y: 2, t: 0</text>
+<line x1="160" y1="284" x2="160" y2="118" class="line s-cyan" marker-end="url(#scenario-frame-arrow-cyan)"/>
+<circle cx="160" cy="284" r="5" class="f-cyan"/>
+<text x="192" y="122" class="t-cyan">pedestrian path</text>
+<text x="192" y="288" class="t-mono t-small t-muted">x: 5, y: -6, t: 0</text>
+<circle cx="160" cy="200" r="4" class="f-none line-strong"/>
+<text x="192" y="192" class="t-small">crosswalk centre (5, 0)</text>
+<text x="192" y="60" class="t-muted t-small">crosswalk</text>
+<text x="372" y="92" class="t-muted t-small">max_range: 25 m from the camera</text>
+<rect x="154" y="376" width="12" height="12" rx="2" class="f-text"/>
+<text x="176" y="386">camera (5, -13)</text>
+</svg>

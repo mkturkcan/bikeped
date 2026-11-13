@@ -1,0 +1,53 @@
+<svg class="bp-fig" viewBox="0 0 760 276" role="img" aria-labelledby="system-overview-title" xmlns="http://www.w3.org/2000/svg">
+<title id="system-overview-title">One frame from the fisheye camera through the processing stages to the warning light and MQTT</title>
+<defs><marker id="system-overview-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-muted"/></marker></defs>
+<text class="t-small t-muted t-mid" x="58" y="50">197.9° fisheye</text>
+<line class="line-faint dash" x1="66" y1="96" x2="14" y2="232"/>
+<line class="line-faint dash" x1="66" y1="96" x2="112" y2="232"/>
+<line class="line-strong" x1="36" y1="232" x2="36" y2="82"/>
+<line class="line-strong" x1="36" y1="82" x2="58" y2="82"/>
+<rect class="box-accent" x="56" y="72" width="22" height="18" rx="4"/>
+<path class="f-amber" d="M59 90A8 8 0 0 0 75 90z"/>
+<rect class="ground" x="8" y="232" width="108" height="8" rx="2"/>
+<text class="t-small t-muted t-mid" x="62" y="258">3.66 m pole</text>
+<rect class="box" x="124" y="40" width="492" height="192" rx="14"/>
+<text class="t-title" x="140" y="68">Jetson Orin</text>
+<text class="t-small t-muted t-end" x="602" y="68">every frame, 30 FPS</text>
+<rect class="box-2" x="134" y="92" width="80" height="116" rx="10"/>
+<text class="t-title t-mid" x="174" y="126">Crop</text>
+<text class="t-small t-muted t-mid" x="174" y="150">pad 3840</text>
+<text class="t-small t-muted t-mid" x="174" y="166">crop 3500</text>
+<rect class="box-2" x="232" y="92" width="80" height="116" rx="10"/>
+<text class="t-title t-mid" x="272" y="126">Detect</text>
+<text class="t-small t-muted t-mid" x="272" y="150">YOLO at</text>
+<text class="t-small t-muted t-mid" x="272" y="166">1280 px</text>
+<rect class="box-2" x="330" y="92" width="80" height="116" rx="10"/>
+<text class="t-title t-mid" x="370" y="126">Locate</text>
+<text class="t-small t-muted t-mid" x="370" y="150">pixel to</text>
+<text class="t-small t-muted t-mid" x="370" y="166">ground x, y</text>
+<rect class="box-2" x="428" y="92" width="80" height="116" rx="10"/>
+<text class="t-title t-mid" x="468" y="126">Track</text>
+<text class="t-small t-muted t-mid" x="468" y="150">ids and</text>
+<text class="t-small t-muted t-mid" x="468" y="166">history</text>
+<rect class="box-accent" x="526" y="92" width="80" height="116" rx="10"/>
+<text class="t-title t-mid" x="566" y="126">Decide</text>
+<text class="t-small t-muted t-mid" x="566" y="150">three</text>
+<text class="t-small t-muted t-mid" x="566" y="166">stages</text>
+<path class="line" d="M78 82H104V150H132" marker-end="url(#system-overview-arrow)"/>
+<line class="line" x1="214" y1="150" x2="230" y2="150" marker-end="url(#system-overview-arrow)"/>
+<line class="line" x1="312" y1="150" x2="328" y2="150" marker-end="url(#system-overview-arrow)"/>
+<line class="line" x1="410" y1="150" x2="426" y2="150" marker-end="url(#system-overview-arrow)"/>
+<line class="line" x1="508" y1="150" x2="524" y2="150" marker-end="url(#system-overview-arrow)"/>
+<path class="line" d="M606 138H626V86H638" marker-end="url(#system-overview-arrow)"/>
+<path class="line" d="M606 162H626V200H638" marker-end="url(#system-overview-arrow)"/>
+<rect class="box" x="640" y="40" width="108" height="92" rx="10"/>
+<text class="t-title t-mid" x="694" y="66">Light</text>
+<text class="t-small t-muted t-mid" x="694" y="84">one colour per state</text>
+<circle class="f-idle" cx="661" cy="108" r="7"/>
+<circle class="f-safe" cx="683" cy="108" r="7"/>
+<circle class="f-warning" cx="705" cy="108" r="7"/>
+<circle class="f-alert" cx="727" cy="108" r="7"/>
+<rect class="box" x="640" y="168" width="108" height="64" rx="10"/>
+<text class="t-title t-mid" x="694" y="194">MQTT</text>
+<text class="t-small t-muted t-mid" x="694" y="212">track messages</text>
+</svg>

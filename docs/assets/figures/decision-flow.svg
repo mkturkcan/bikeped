@@ -1,0 +1,51 @@
+<svg class="bp-fig" viewBox="0 0 760 290" role="img" aria-labelledby="decision-flow-title" xmlns="http://www.w3.org/2000/svg">
+<title id="decision-flow-title">The three decision stages and the four states they can return</title>
+<defs><marker id="decision-flow-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-muted"/></marker></defs>
+<rect class="box" x="12" y="40" width="112" height="92" rx="10"/>
+<text class="t-title t-mid" x="68" y="76">Tracks</text>
+<text class="t-small t-muted t-mid" x="68" y="96">persons, bikes</text>
+<text class="t-small t-muted t-mid" x="68" y="112">ground x, y (m)</text>
+<rect class="box-2" x="152" y="40" width="168" height="92" rx="10"/>
+<text class="t-small t-muted t-mid" x="236" y="62">Stage 1</text>
+<text class="t-title t-mid" x="236" y="86">Pedestrian present?</text>
+<text class="t-small t-muted t-mid" x="236" y="108">any person track</text>
+<rect class="box-2" x="348" y="40" width="168" height="92" rx="10"/>
+<text class="t-small t-muted t-mid" x="432" y="62">Stage 2</text>
+<text class="t-title t-mid" x="432" y="86">Cyclist in memory?</text>
+<text class="t-small t-muted t-mid" x="432" y="108">seen in the last N frames</text>
+<rect class="box-accent" x="544" y="40" width="204" height="92" rx="10"/>
+<text class="t-small t-muted t-mid" x="646" y="62">Stage 3</text>
+<text class="t-title t-mid" x="646" y="86">Pair close and closing?</text>
+<text class="t-small t-muted t-mid" x="646" y="106">d_min ≤ d ≤ d_max, d falling,</text>
+<text class="t-small t-muted t-mid" x="646" y="121">cyclist moving</text>
+<line class="line" x1="124" y1="86" x2="150" y2="86" marker-end="url(#decision-flow-arrow)"/>
+<line class="line" x1="320" y1="86" x2="346" y2="86" marker-end="url(#decision-flow-arrow)"/>
+<line class="line" x1="516" y1="86" x2="542" y2="86" marker-end="url(#decision-flow-arrow)"/>
+<text class="t-small t-faint t-mid" x="333" y="76">yes</text>
+<text class="t-small t-faint t-mid" x="529" y="76">yes</text>
+<line class="line" x1="236" y1="132" x2="236" y2="196" marker-end="url(#decision-flow-arrow)"/>
+<text class="t-small t-faint" x="244" y="168">no</text>
+<line class="line" x1="432" y1="132" x2="432" y2="196" marker-end="url(#decision-flow-arrow)"/>
+<text class="t-small t-faint" x="440" y="168">no</text>
+<line class="line" x1="596" y1="132" x2="596" y2="196" marker-end="url(#decision-flow-arrow)"/>
+<text class="t-small t-faint" x="604" y="168">no</text>
+<line class="line" x1="696" y1="132" x2="696" y2="196" marker-end="url(#decision-flow-arrow)"/>
+<text class="t-small t-faint" x="704" y="168">yes</text>
+<rect class="f-idle-soft s-idle" x="188" y="198" width="96" height="34" rx="17"/>
+<circle class="f-idle" cx="208" cy="215" r="5"/>
+<text class="t-mono" x="222" y="220">idle</text>
+<rect class="f-safe-soft s-safe" x="384" y="198" width="96" height="34" rx="17"/>
+<circle class="f-safe" cx="404" cy="215" r="5"/>
+<text class="t-mono" x="418" y="220">safe</text>
+<rect class="f-warning-soft s-warning" x="548" y="198" width="96" height="34" rx="17"/>
+<circle class="f-warning" cx="566" cy="215" r="5"/>
+<text class="t-mono" x="578" y="220">warning</text>
+<rect class="f-alert-soft s-alert" x="652" y="198" width="92" height="34" rx="17"/>
+<circle class="f-alert" cx="672" cy="215" r="5"/>
+<text class="t-mono" x="686" y="220">alert</text>
+<text class="t-small t-muted t-mid" x="236" y="256">light: blue</text>
+<text class="t-small t-muted t-mid" x="432" y="256">light: green</text>
+<text class="t-small t-muted t-mid" x="596" y="256">light: orange</text>
+<text class="t-small t-muted t-mid" x="698" y="256">light: red</text>
+<text class="t-small t-faint" x="12" y="24">evaluated once per frame</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+<rect width="320" height="200" fill="#111317"/>
+<rect x="0" y="56.7" width="320" height="86.7" fill="#181b20"/>
+<line x1="0" y1="56.7" x2="320" y2="56.7" stroke="#2b2f37" stroke-width="1.5"/>
+<line x1="0" y1="143.3" x2="320" y2="143.3" stroke="#2b2f37" stroke-width="1.5"/>
+<line x1="0" y1="100" x2="320" y2="100" stroke="#30343c" stroke-width="1" stroke-dasharray="8 8"/>
+<rect x="103.3" y="137.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="129.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="121.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="113.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="105.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="97.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="89.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="81.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="73.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="65.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="57.3" width="20" height="4" fill="#262a32"/>
+<path d="M280 106.7 L271 106.7 L261.9 106.7 L252.9 106.7 L243.8 106.7 L234.8 106.7 L225.7 106.7 L216.7 106.7 L207.6 106.7 L198.6 106.7 L189.5 106.7 L180.5 106.7 L171.4 106.7 L162.4 106.7 L153.3 106.7 L144.4 107.7 L136 110.6 L128.4 115.4 L122.1 121.7 L117.3 129.3 L114.3 137.8 L113.3 146.7 L113.3 154.7 L113.3 162.7 L113.3 170.7 L113.3 178.7 L113.3 186.7" fill="none" stroke="#ffb547" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10.8 4" stroke-opacity="0.95"/>
+<circle cx="280" cy="106.7" r="3.2" fill="#ffb547"/>
+<path d="M113.3 186.7 L110.3 180.4 L116.4 180.4 Z" fill="#ffb547"/>
+<path d="M113.3 146.7 L113.3 144.4 L113.3 142.1 L113.3 139.7 L113.3 137.4 L113.3 135.1 L113.3 132.8 L113.3 130.5 L113.3 128.2 L113.3 125.9 L113.3 123.6 L113.3 121.3 L113.3 119 L113.3 116.7 L113.3 114.4 L113.3 112.1 L113.3 109.7 L113.3 107.4 L113.3 105.1 L113.3 102.8 L113.3 100.5 L113.3 98.2 L113.3 95.9 L113.3 93.6 L113.3 91.3 L113.3 89 L113.3 86.7 L113.3 84.4 L113.3 82.1 L113.3 79.7 L113.3 77.4 L113.3 75.1 L113.3 72.8 L113.3 70.5 L113.3 68.2 L113.3 65.9 L113.3 63.6 L113.3 61.3 L113.3 59 L113.3 56.7" fill="none" stroke="#6fe3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.2 4" stroke-opacity="0.95"/>
+<circle cx="113.3" cy="146.7" r="3.2" fill="#6fe3ff"/>
+<path d="M113.3 56.7 L116.4 63 L110.3 63 Z" fill="#6fe3ff"/>
+</svg>

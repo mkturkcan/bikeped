@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+<rect width="320" height="200" fill="#111317"/>
+<rect x="0" y="56.7" width="320" height="86.7" fill="#181b20"/>
+<line x1="0" y1="56.7" x2="320" y2="56.7" stroke="#2b2f37" stroke-width="1.5"/>
+<line x1="0" y1="143.3" x2="320" y2="143.3" stroke="#2b2f37" stroke-width="1.5"/>
+<line x1="0" y1="100" x2="320" y2="100" stroke="#30343c" stroke-width="1" stroke-dasharray="8 8"/>
+<rect x="103.3" y="137.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="129.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="121.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="113.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="105.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="97.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="89.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="81.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="73.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="65.3" width="20" height="4" fill="#262a32"/>
+<rect x="103.3" y="57.3" width="20" height="4" fill="#262a32"/>
+<path d="M280 103.3 L271.7 103.3 L263.4 103.3 L255.2 103.3 L246.9 103.3 L238.6 103.3 L230.3 103.3 L222.1 103.3 L213.8 103.3 L205.5 103.3 L197.2 103.3 L189 103.3 L180.7 103.3 L172.4 103.3 L164.1 103.3 L155.9 103.3 L147.6 103.3 L139.3 103.3 L131 103.3 L122.8 103.3 L114.5 103.3 L106.2 103.3 L97.9 103.3 L89.7 103.3 L81.4 103.3 L73.1 103.3 L64.8 103.3 L56.6 103.3 L48.3 103.3 L40 103.3" fill="none" stroke="#ffb547" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 4" stroke-opacity="0.95"/>
+<circle cx="280" cy="103.3" r="3.2" fill="#ffb547"/>
+<path d="M40 103.3 L46.3 100.3 L46.3 106.4 Z" fill="#ffb547"/>
+<path d="M213.3 150 L211 150 L208.7 150 L206.4 150 L204.1 150 L201.8 150 L199.5 150 L197.2 150 L194.9 150 L192.6 150 L190.3 150 L187.9 150 L185.6 150 L183.3 150 L181 150 L178.7 150 L176.4 150 L174.1 150 L171.8 150 L169.5 150 L167.2 150 L164.9 150 L162.6 150 L160.3 150 L157.9 150 L155.6 150 L153.3 150 L151 150 L148.7 150 L146.4 150 L144.1 150 L141.8 150 L139.5 150 L137.2 150 L134.9 150 L132.6 150 L130.3 150 L127.9 150 L125.6 150 L123.3 150 L121 150 L118.7 150 L116.4 150 L114.1 150 L111.8 150 L109.5 150 L107.2 150 L104.9 150 L102.6 150 L100.3 150 L97.9 150 L95.6 150 L93.3 150" fill="none" stroke="#6fe3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.2 4" stroke-opacity="0.95"/>
+<circle cx="213.3" cy="150" r="3.2" fill="#6fe3ff"/>
+<path d="M93.3 150 L99.6 147 L99.6 153 Z" fill="#6fe3ff"/>
+</svg>

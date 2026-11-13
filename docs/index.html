@@ -1,1491 +1,748 @@
-
 <!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-        <meta name="description" content="Real-time pedestrian–cyclist collision warning for urban intersections.">
-      
-      
-      
-        <link rel="canonical" href="https://mkturkcan.github.io/bikeped/">
-      
-      
-      
-        <link rel="next" href="api/decision_pipeline/">
-      
-      
-        
-      
-      
-      <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
-    
-    
-      
-        <title>bikeped</title>
-      
-    
-    
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
-      
-      
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bikeped</title>
+<meta name="description" content="Real-time collision warnings for pedestrians and cyclists at urban intersections, from one fisheye camera and one edge device, with the simulation testbed used to evaluate it.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="bikeped">
+<meta property="og:description" content="Real-time collision warnings for pedestrians and cyclists at urban intersections, from one fisheye camera and one edge device.">
+<meta property="og:url" content="https://mkturkcan.github.io/bikeped/">
+<meta property="og:image" content="https://mkturkcan.github.io/bikeped/media/social_preview.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mkturkcan.github.io/bikeped/media/social_preview.jpg">
+<meta name="theme-color" content="#0a0b0d">
+<link rel="icon" href="media/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0b0d;
+  --surface: #111317;
+  --surface-2: #171a1f;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --text: #ecebe8;
+  --muted: #9b9ca3;
+  --faint: #6c6e76;
+  --amber: #ffb547;
+  --cyan: #6fe3ff;
+  --alert: #ff5a4f;
+  --safe: #5ad19a;
+  --radius: 14px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --max: 1200px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 17px/1.65 "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+code, pre { font-family: "Geist Mono", ui-monospace, "Cascadia Code", Consolas, monospace; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
 
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+.split > *, .gt > *, .code-grid > *, .cards > *, .cite { min-width: 0; }
 
-    
-    
-      
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
-      
-    
-    
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
-    
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
+/* Navigation */
+.nav {
+  position: absolute; inset: 0 0 auto 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px var(--gutter);
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+.brand svg { width: 22px; height: 22px; }
+.nav nav { display: flex; gap: 28px; font-size: 15px; }
+.nav nav a { text-decoration: none; color: rgba(236, 235, 232, 0.78); transition: color .2s; }
+.nav nav a:hover { color: #fff; }
 
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
-  
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#bikeped-real-time-pedestrian-cyclist-collision-warning" class="md-skip">
-          Skip to content
-        </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
+/* Header */
+.hero {
+  position: relative; height: min(100svh, 1080px); min-height: 620px;
+  overflow: hidden; isolation: isolate;
+}
+.hero.has-overlay { cursor: crosshair; }
+.hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero .tracks {
+  -webkit-mask-image: radial-gradient(circle var(--r, 250px) at var(--x, 58%) var(--y, 52%), #000 55%, transparent 100%);
+          mask-image: radial-gradient(circle var(--r, 250px) at var(--x, 58%) var(--y, 52%), #000 55%, transparent 100%);
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 11, 13, 0.6) 0%, rgba(10, 11, 13, 0) 24%),
+    linear-gradient(0deg, var(--bg) 0%, rgba(10, 11, 13, 0.84) 18%, rgba(10, 11, 13, 0) 54%),
+    linear-gradient(90deg, rgba(10, 11, 13, 0.72) 0%, rgba(10, 11, 13, 0) 58%);
+}
+.hero-copy {
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: clamp(40px, 9vh, 96px);
+  pointer-events: none;
+}
+.hero-copy > .wrap > * { pointer-events: auto; }
+.hero h1 {
+  margin: 0; font-weight: 600; letter-spacing: -0.05em; line-height: 0.92;
+  font-size: clamp(64px, 12vw, 168px);
+}
+.hero-copy p {
+  margin: 22px 0 0; max-width: 36ch; color: rgba(236, 235, 232, 0.86);
+  font-size: clamp(18px, 2vw, 22px); line-height: 1.45; letter-spacing: -0.01em;
+}
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 20px;
+  border-radius: 999px; font-size: 15px; font-weight: 500; text-decoration: none;
+  border: 1px solid var(--line-strong); background: rgba(17, 19, 23, 0.6);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: background .2s, border-color .2s;
+}
+.btn:hover { background: rgba(40, 43, 50, 0.8); border-color: rgba(255, 255, 255, 0.3); }
+.btn.primary { background: var(--text); color: #0a0b0d; border-color: var(--text); }
+.btn.primary:hover { background: #fff; }
+.btn.amber { background: var(--amber); color: #1a1206; border-color: var(--amber); }
+.btn.amber:hover { background: #ffc46b; }
+.btn svg { width: 16px; height: 16px; }
+.hero-note {
+  position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(40px, 9vh, 96px);
+  max-width: 270px; text-align: right; font-size: 13px; line-height: 1.5; color: var(--faint);
+}
 
-  
+/* Sections */
+section { padding: clamp(80px, 12vw, 150px) 0 0; }
+h2 {
+  margin: 0; font-weight: 600; letter-spacing: -0.035em; line-height: 1.05;
+  font-size: clamp(34px, 4.6vw, 56px); max-width: 18ch;
+}
+.lede { margin: 26px 0 0; max-width: 62ch; color: var(--muted); font-size: 18px; }
+.lede strong { color: var(--text); font-weight: 500; }
+.lede a { color: var(--text); text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.lede a:hover { text-decoration-color: var(--amber); }
+.lede code { font-size: 0.88em; color: var(--text); }
+.split { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(40px, 6vw, 96px); align-items: end; }
+.try {
+  position: relative; overflow: hidden; border-radius: 20px; padding: clamp(28px, 3vw, 40px);
+  background: linear-gradient(160deg, rgba(255, 181, 71, 0.10), rgba(111, 227, 255, 0.04) 60%), var(--surface);
+  border: 1px solid var(--line-strong);
+}
+.try h3 { margin: 0; font-size: clamp(30px, 3vw, 40px); font-weight: 600; letter-spacing: -0.035em; line-height: 1; }
+.try p { margin: 14px 0 0; color: var(--muted); font-size: 16px; max-width: 38ch; }
+.try .actions { margin-top: 26px; }
+.try small { display: block; margin-top: 20px; font-size: 13px; color: var(--faint); }
 
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="bikeped" class="md-header__button md-logo" aria-label="bikeped" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+figure { margin: 0; }
+figcaption { margin-top: 14px; font-size: 14px; color: var(--faint); }
+.frame { border-radius: var(--radius); overflow: hidden; background: var(--surface); border: 1px solid var(--line); }
+.mt { margin-top: clamp(36px, 5vw, 64px); }
 
+/* Segmented control */
+.viewer-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+.seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.seg button {
+  font: inherit; font-size: 14px; color: var(--muted); background: none; border: 0; cursor: pointer;
+  height: 34px; padding: 0 16px; border-radius: 999px; transition: background .2s, color .2s;
+}
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.viewer-bar small { font-size: 14px; color: var(--faint); }
+
+/* Decision flow */
+.flow { --c: var(--faint); padding: clamp(18px, 3vw, 36px) clamp(12px, 2vw, 28px) clamp(10px, 2vw, 20px); }
+.flow[data-state="safe"] { --c: var(--safe); }
+.flow[data-state="warning"] { --c: var(--amber); }
+.flow[data-state="alert"] { --c: var(--alert); }
+.flow[data-state="idle"] { --c: #b4b5bb; }
+.flow-scroll { overflow-x: auto; }
+.flow svg { display: block; width: 100%; min-width: 860px; height: auto; }
+.flow .node rect { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1; transition: stroke .35s; }
+.flow .node text { fill: var(--text); font: 500 17px "Geist", system-ui, sans-serif; letter-spacing: -0.01em; }
+.flow .node .num { fill: var(--faint); font: 500 13px "Geist Mono", ui-monospace, monospace; transition: fill .35s; }
+.flow .node .sub { fill: var(--muted); font: 400 14px "Geist", system-ui, sans-serif; letter-spacing: 0; }
+.flow .edge { fill: none; stroke: rgba(255, 255, 255, 0.14); stroke-width: 1.5; transition: stroke .35s; }
+.flow .tag { fill: var(--faint); font: 400 13px "Geist Mono", ui-monospace, monospace; }
+.flow .out rect { fill: var(--surface); stroke: var(--line); stroke-width: 1; transition: stroke .35s, fill .35s; }
+.flow .out text { fill: var(--faint); font: 500 14px "Geist Mono", ui-monospace, monospace; letter-spacing: 0.08em; transition: fill .35s; }
+.flow .out circle { fill: var(--faint); opacity: .4; transition: fill .35s, opacity .35s; }
+.flow[data-state="idle"] .edge.on-idle,
+.flow[data-state="safe"] .edge.on-safe,
+.flow[data-state="warning"] .edge.on-warning,
+.flow[data-state="alert"] .edge.on-alert { stroke: var(--c); }
+.flow[data-state="idle"] .node.on-idle rect,
+.flow[data-state="safe"] .node.on-safe rect,
+.flow[data-state="warning"] .node.on-warning rect,
+.flow[data-state="alert"] .node.on-alert rect { stroke: var(--c); }
+.flow[data-state="idle"] .node.on-idle .num,
+.flow[data-state="safe"] .node.on-safe .num,
+.flow[data-state="warning"] .node.on-warning .num,
+.flow[data-state="alert"] .node.on-alert .num { fill: var(--c); }
+.flow[data-state="idle"] .out.is-idle rect,
+.flow[data-state="safe"] .out.is-safe rect,
+.flow[data-state="warning"] .out.is-warning rect,
+.flow[data-state="alert"] .out.is-alert rect { stroke: var(--c); fill: var(--surface-2); }
+.flow[data-state="idle"] .out.is-idle text,
+.flow[data-state="safe"] .out.is-safe text,
+.flow[data-state="warning"] .out.is-warning text,
+.flow[data-state="alert"] .out.is-alert text { fill: var(--text); }
+.flow[data-state="idle"] .out.is-idle circle,
+.flow[data-state="safe"] .out.is-safe circle,
+.flow[data-state="warning"] .out.is-warning circle,
+.flow[data-state="alert"] .out.is-alert circle { fill: var(--c); opacity: 1; }
+.flow-note { min-height: 3.2em; margin: 0; flex: 1 1 320px; font-size: 15px; color: var(--muted); }
+
+/* Image viewer */
+.viewer { position: relative; aspect-ratio: 16 / 9; }
+.viewer img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .9s ease; }
+.viewer img.on { opacity: 1; }
+
+/* Perception */
+.gt { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(24px, 3vw, 40px); align-items: stretch; }
+.gt .frame img { width: 100%; height: 100%; object-fit: cover; }
+.gt .stack { display: flex; flex-direction: column; gap: clamp(16px, 2vw, 24px); }
+pre {
+  margin: 0; padding: 22px 24px; overflow: auto; font-size: 13px; line-height: 1.7;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); color: #c9cad0;
+}
+pre .k { color: #e8e8ec; }
+pre .s { color: var(--cyan); }
+pre .n { color: var(--amber); }
+pre .c { color: var(--faint); }
+
+/* View mosaic */
+.views { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.views figure { position: relative; border-radius: 12px; overflow: hidden; background: var(--surface); }
+.views img, .views video { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16 / 9; display: block; }
+.views .wide { grid-column: span 4; }
+.views figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 28px 14px 10px;
+  font-size: 13px; color: rgba(236, 235, 232, 0.82);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
+}
+
+/* Scenario mosaic */
+.scenarios { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.scenarios a {
+  display: block; position: relative; border-radius: 12px; overflow: hidden; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--line); transition: border-color .25s, transform .25s;
+}
+.scenarios a:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.scenarios img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.scenarios span { display: flex; justify-content: space-between; gap: 10px; padding: 11px 14px 12px; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); }
+.scenarios span b { font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scenarios span i { font-style: normal; font-family: "Geist Mono", monospace; font-size: 12px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; }
+.key { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 16px; font-size: 14px; color: var(--faint); }
+.key span::before { content: ""; display: inline-block; width: 18px; height: 2px; margin-right: 8px; vertical-align: middle; background: var(--k); border-radius: 2px; }
+
+/* Code */
+.code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 3vw, 40px); }
+.label { font-size: 14px; color: var(--faint); margin: 0 0 12px; }
+
+/* Cards */
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 2vw, 24px); }
+.cards.three { grid-template-columns: repeat(3, 1fr); }
+.card {
+  display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); text-decoration: none;
+  transition: border-color .25s, transform .25s;
+}
+.card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.card img { aspect-ratio: 16 / 8; object-fit: cover; width: 100%; }
+.card .body { padding: 26px 28px 28px; display: flex; flex-direction: column; flex: 1; }
+.card h3 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.card p { margin: 10px 0 0; color: var(--muted); font-size: 16px; }
+.card table { margin-top: 22px; width: 100%; border-collapse: collapse; font-size: 15px; }
+.card td { padding: 10px 0; border-top: 1px solid var(--line); }
+.card td:last-child { text-align: right; font-family: "Geist Mono", monospace; font-size: 14px; color: var(--text); }
+.card td:first-child { color: var(--muted); }
+.card .go { margin-top: auto; padding-top: 22px; font-size: 15px; color: var(--text); }
+.card .go svg { width: 14px; height: 14px; vertical-align: -2px; margin-left: 4px; transition: transform .2s; }
+.card:hover .go svg { transform: translateX(3px); }
+.card.small .body { padding: 22px 24px 24px; }
+.card.small h3 { font-size: 18px; }
+.card.small p { font-size: 15px; }
+.card.small code { font-size: 13px; color: var(--text); }
+
+/* Citation */
+.cite { position: relative; }
+.copy {
+  position: absolute; top: 12px; right: 12px; font: inherit; font-size: 13px; cursor: pointer;
+  color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px;
+}
+.copy:hover { color: var(--text); border-color: var(--line-strong); }
+
+footer { margin-top: clamp(96px, 12vw, 160px); border-top: 1px solid var(--line); padding: 40px 0 56px; color: var(--faint); font-size: 14px; }
+footer .row { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--text); }
+footer p { margin: 0 0 6px; max-width: 70ch; }
+
+@media (max-width: 900px) {
+  .views { grid-template-columns: 1fr 1fr; }
+  .views .wide { grid-column: span 2; }
+  .split, .gt, .code-grid, .cards, .cards.three { grid-template-columns: 1fr; }
+  .scenarios { grid-template-columns: 1fr 1fr; }
+  .hero-note { display: none; }
+}
+@media (max-width: 640px) {
+  .nav nav { gap: 18px; font-size: 14px; }
+  .nav nav a.hide-sm { display: none; }
+  .hero { min-height: 560px; }
+  .hero > img { object-position: 42% 50%; }
+  pre { font-size: 12px; padding: 18px; }
+  .seg button { padding: 0 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <div class="nav">
+    <a class="brand" href="#" aria-label="bikeped home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9.2" opacity=".55"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
+      bikeped
     </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
-            bikeped
-          </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
-            
-              Home
-            
-          </span>
-        </div>
-      </div>
-    </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
-      </label>
-    
-  
-</form>
-      
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
-    
-    
-    
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
-            
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
-          </a>
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
+    <nav aria-label="Primary">
+      <a class="hide-sm" href="#decision">How it works</a>
+      <a class="hide-sm" href="#scenarios">Scenarios</a>
+      <a class="hide-sm" href="simulator/">Simulator</a>
+      <a href="start/">Docs</a>
+      <a href="https://arxiv.org/abs/2604.17046">Paper</a>
+      <a href="https://github.com/mkturkcan/bikeped">GitHub</a>
+    </nav>
+  </div>
+  <img src="media/hero.jpg" width="2560" height="1440" alt="A crosswalk seen from a pole-mounted camera in CARLA, with a pedestrian crossing and a cyclist approaching" fetchpriority="high">
+  <img class="tracks" id="hero-tracks" src="media/hero_overlay.jpg" width="2560" height="1440" alt="" aria-hidden="true" hidden>
+  <div class="hero-copy">
+    <div class="wrap">
+      <h1>bikeped</h1>
+      <p>Real-time collision warnings for pedestrians and cyclists at urban intersections, from one fisheye camera and one edge device.</p>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/mkturkcan/bikeped">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Get the code
+        </a>
+        <a class="btn" href="https://arxiv.org/abs/2604.17046">Read the paper</a>
+        <a class="btn" href="start/">Documentation</a>
       </div>
     </div>
   </div>
-</div>
-      
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/mkturkcan/bikeped" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
-  </div>
-  <div class="md-source__repository">
-    mkturkcan/bikeped
-  </div>
-</a>
-      </div>
-    
-  </nav>
-  
-    
-      
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-    
-  
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
-        
-  
-  
-    
-  
-  Home
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="api/decision_pipeline/" class="md-tabs__link">
-          
-  
-  
-    
-  
-  Core
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="api/calibrate_fisheye/" class="md-tabs__link">
-          
-  
-  
-    
-  
-  Calibration
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="api/eval_models/" class="md-tabs__link">
-          
-  
-  
-    
-  
-  Tools
-
-        </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
-</nav>
-    
-  
+  <p class="hero-note" id="hero-note">The conformance scenario Bike Approaches Ped, rendered in CARLA from the pole camera.</p>
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
 
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="." title="bikeped" class="md-nav__button md-logo" aria-label="bikeped" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
-
-    </a>
-    bikeped
-  </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/mkturkcan/bikeped" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
-  </div>
-  <div class="md-source__repository">
-    mkturkcan/bikeped
-  </div>
-</a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Requirements
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reproduce-paper-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reproduce Paper Results
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#verify-bev-projection-consistency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify BEV Projection Consistency
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#perception-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Perception Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#repository-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Repository Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conformance-scenarios" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Conformance Scenarios
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Core
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Core
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/decision_pipeline/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    decision_pipeline
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/decision_testbench/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    decision_testbench
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/sim_visualizer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    sim_visualizer
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/generate_figures/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    generate_figures
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/run_experiments/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    run_experiments
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/run_height_pitch_sweep/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    run_height_pitch_sweep
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/crosswalk_analysis/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    crosswalk_analysis
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Calibration
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Calibration
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/calibrate_fisheye/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    calibrate_fisheye
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/capture_calibration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    capture_calibration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/compare_fisheye_models/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    compare_fisheye_models
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Tools
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Tools
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/eval_models/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    eval_models
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/latency_report/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    latency_report
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Requirements
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reproduce-paper-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reproduce Paper Results
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#verify-bev-projection-consistency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify BEV Projection Consistency
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#perception-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Perception Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#repository-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Repository Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conformance-scenarios" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Conformance Scenarios
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          
-            <div class="md-content" data-md-component="content">
-              
-              <article class="md-content__inner md-typeset">
-                
-                  
-
-
-
-<h1 id="bikeped-real-time-pedestrian-cyclist-collision-warning">bikeped: Real-Time Pedestrian-Cyclist Collision Warning<a class="headerlink" href="#bikeped-real-time-pedestrian-cyclist-collision-warning" title="Permanent link">&para;</a></h1>
-<p>Infrastructure-side collision warning system for urban intersections. Runs on an NVIDIA Jetson Orin with a 200-degree fisheye camera, producing audible and visual alerts at 30 fps with 30 ms processing latency.</p>
-<p>Technical Report: <em><a href="https://arxiv.org/abs/2604.17046">A Real-Time Bike-Pedestrian Safety System with Wide-Angle Perception and Evaluation Testbed for Urban Intersections</a></em> (arXiv:2604.17046)</p>
-<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Python 3.10+</li>
-<li><code>numpy</code>, <code>scipy</code>, <code>matplotlib</code>, <code>pyyaml</code>, <code>opencv-python</code></li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>scipy<span class="w"> </span>matplotlib<span class="w"> </span>pyyaml<span class="w"> </span>opencv-python
-</span></code></pre></div>
-<p>For the live system (<code>mqtt_bridge.py</code>): NVIDIA Jetson AGX Orin, TensorRT, <code>ultralytics</code>, <code>paho-mqtt</code>, <code>busylight</code>, <code>play_sounds</code>.</p>
-<h3 id="reproduce-paper-results">Reproduce Paper Results<a class="headerlink" href="#reproduce-paper-results" title="Permanent link">&para;</a></h3>
-<p>Run all experiments with a single command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>run_experiments.py<span class="w">                  </span><span class="c1"># full pipeline (~45 min)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>run_experiments.py<span class="w"> </span>--skip-optimizer<span class="w">  </span><span class="c1"># skip optimizer (~10 min)</span>
-</span></code></pre></div>
-<p>Or run individual experiments:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Table 5 (pipeline comparison, includes fisheye localization error)</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>decision_testbench.py<span class="w"> </span>--compare
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Ablation without localization error</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>python<span class="w"> </span>decision_testbench.py<span class="w"> </span>--no-bbox-noise<span class="w"> </span>--compare
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Figure 4 (latency sweep) — generates paper/fig_camera_latency.pdf</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>python<span class="w"> </span>decision_testbench.py<span class="w"> </span>--latency-sweep
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Monte Carlo with size-aware detection failures</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>python<span class="w"> </span>decision_testbench.py<span class="w"> </span>--monte-carlo<span class="w"> </span>--mc-trials<span class="w"> </span><span class="m">50</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># Optimizer (differential evolution, ~30 min)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>python<span class="w"> </span>decision_testbench.py<span class="w"> </span>--optimize
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="c1"># Height-pitch camera placement sweep (Figure 8b, ~30 min)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>python<span class="w"> </span>run_height_pitch_sweep.py
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="c1"># Bounding box localization error analysis</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>python<span class="w"> </span>decision_testbench.py<span class="w"> </span>--error-map
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="c1"># Generate all publication figures</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>python<span class="w"> </span>generate_figures.py
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="c1"># Render scenario simulation videos</span>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>python<span class="w"> </span>sim_visualizer.py<span class="w"> </span>--no-display
-</span></code></pre></div>
-<h3 id="verify-bev-projection-consistency">Verify BEV Projection Consistency<a class="headerlink" href="#verify-bev-projection-consistency" title="Permanent link">&para;</a></h3>
-<p>The testbench and the deployed system (<code>mqtt_bridge.py</code>) must produce identical ground-plane projections. The following verifies zero-error agreement across the full pixel grid:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="s2">import numpy as np</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s2">from numpy import pi, sin, cos, sqrt</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="s2">def mqtt_pixel_to_ground(fw, fh, ch, cp, fov, cx, cy, radius):</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="s2">    dc = 2*radius</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s2">    yg, xg = np.meshgrid(np.arange(fh), np.arange(fw), indexing=&#39;ij&#39;)</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s2">    dx = xg - cx; dy = yg - cy</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s2">    r = np.sqrt(dx**2+dy**2); phi = np.arctan2(dy,dx)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s2">    ifoc = dc*180/(fov*pi); theta = r/ifoc</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s2">    st,ct = np.sin(theta),np.cos(theta); sp,cp2 = np.sin(phi),np.cos(phi)</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="s2">    rays = np.stack([ct,st*cp2,-st*sp],axis=-1)</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s2">    rl = np.linalg.norm(rays,axis=-1,keepdims=True); rays = rays/(rl+1e-10)</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s2">    pr = cp*pi/180; cpr,spr = cos(pr),sin(pr)</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="s2">    rp = np.stack([rays[...,0]*cpr-rays[...,2]*spr,rays[...,1],</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="s2">                   rays[...,0]*spr+rays[...,2]*cpr],axis=-1)</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="s2">    rz = rp[...,2]; valid = rz&lt;-1e-6</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="s2">    t = np.zeros_like(rz); t[valid] = -ch/rz[valid]</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="s2">    gc = np.zeros((fh,fw,3))</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="s2">    for i in range(3): gc[...,i] = np.array([0,0,ch])[i]+t*rp[...,i]</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="s2">    gc[~valid] = np.nan</span>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="s2">    return gc, valid</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="s2">from decision_testbench import FisheyeCamera</span>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="s2">import json, yaml</span>
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>
-</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="s2">with open(&#39;config.yaml&#39;) as f: cfg = yaml.safe_load(f)</span>
-</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="s2">cc = cfg.get(&#39;camera&#39;, {})</span>
-</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="s2">calib = json.load(open(&#39;camera_calibration.json&#39;))</span>
-</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="s2">H=cc.get(&#39;height&#39;,3.6576); FOV=calib[&#39;fov_deg&#39;]; R=int(calib[&#39;radius_px&#39;])</span>
-</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="s2">P=cc.get(&#39;pitch_deg&#39;,0.0); CX=calib[&#39;cx&#39;]; CY=calib[&#39;cy&#39;]</span>
-</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="s2">W=int(calib[&#39;frame_width&#39;]); HH=int(calib[&#39;frame_height&#39;])</span>
-</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>
-</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="s2">mqtt_g, mqtt_v = mqtt_pixel_to_ground(W,HH,H,P,FOV,CX,CY,R)</span>
-</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="s2">cam = FisheyeCamera(height=H, fov_deg=FOV, radius_px=R, frame_width=W,</span>
-</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="s2">    frame_height=HH, cam_x=5.0, cam_y=-13.0, pitch_deg=P,</span>
-</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="s2">    cx_override=CX, cy_override=CY)</span>
-</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>
-</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="s2">diffs = []</span>
-</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="s2">for pv in range(0, HH, 50):</span>
-</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="s2">    for pu in range(0, W, 50):</span>
-</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="s2">        if not mqtt_v[pv,pu]: continue</span>
-</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a><span class="s2">        mx,my = mqtt_g[pv,pu,0], mqtt_g[pv,pu,1]</span>
-</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a><span class="s2">        md = sqrt(mx**2+my**2)</span>
-</span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a><span class="s2">        tb_gnd, tv = cam.pixel_to_ground(np.array([pu,pv],dtype=np.float64))</span>
-</span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a><span class="s2">        if not tv: continue</span>
-</span><span id="__span-3-47"><a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a><span class="s2">        td = sqrt((tb_gnd[0]-cam.cam_x)**2+(tb_gnd[1]-cam.cam_y)**2)</span>
-</span><span id="__span-3-48"><a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a><span class="s2">        diffs.append(abs(md-td))</span>
-</span><span id="__span-3-49"><a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a>
-</span><span id="__span-3-50"><a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a><span class="s2">diffs = np.array(diffs)</span>
-</span><span id="__span-3-51"><a id="__codelineno-3-51" name="__codelineno-3-51" href="#__codelineno-3-51"></a><span class="s2">print(f&#39;Compared {len(diffs)} points: max_diff={diffs.max():.1e} m&#39;)</span>
-</span><span id="__span-3-52"><a id="__codelineno-3-52" name="__codelineno-3-52" href="#__codelineno-3-52"></a><span class="s2">assert diffs.max() &lt; 1e-6, &#39;BEV MISMATCH&#39;</span>
-</span><span id="__span-3-53"><a id="__codelineno-3-53" name="__codelineno-3-53" href="#__codelineno-3-53"></a><span class="s2">print(&#39;PASS: testbench and mqtt_bridge BEV projections match exactly&#39;)</span>
-</span><span id="__span-3-54"><a id="__codelineno-3-54" name="__codelineno-3-54" href="#__codelineno-3-54"></a><span class="s2">&quot;</span>
-</span></code></pre></div>
-<h2 id="perception-pipeline">Perception Pipeline<a class="headerlink" href="#perception-pipeline" title="Permanent link">&para;</a></h2>
-<p>The testbench and simulator replicate the physical capture and processing pipeline of the deployed system:</p>
-<pre class="mermaid"><code>graph LR
-    subgraph Physical Model
-        A[Fisheye lens&lt;br/&gt;3500x3500 circle] --&gt; B[Sensor captures&lt;br/&gt;3840x2160&lt;br/&gt;top/bottom clipped]
-    end
-
-    subgraph mqtt_bridge
-        B --&gt; C[Downsample&lt;br/&gt;1280x720]
-        C --&gt; D[YOLO detection&lt;br/&gt;1280x1280]
-        D --&gt; E[Scale bbox&lt;br/&gt;to 3840x2160]
-        E --&gt; F[CoordinateMapper&lt;br/&gt;pad 3840x3840&lt;br/&gt;crop 3500x3500]
-        F --&gt; G[Ground coord LUT&lt;br/&gt;equidistant model]
-        G --&gt; H[BEV position&lt;br/&gt;camera-relative]
-    end
-
-    subgraph Testbench / Simulator
-        I[3D world position] --&gt; J[FisheyeCamera&lt;br/&gt;world_to_pixel&lt;br/&gt;3500x3500]
-        J --&gt; K{On sensor?&lt;br/&gt;rows 670-2829}
-        K --&gt;|yes| L[projected_bbox_area&lt;br/&gt;→ YOLO input scale]
-        K --&gt;|no| M[Not visible]
-        L --&gt; N[BBox error&lt;br/&gt;bottom-center offset]
-        N --&gt; O[pixel_to_ground&lt;br/&gt;→ camera-relative]
-    end
-
-    H -.-&gt;|verified zero-error| O</code></pre>
-<p>The ground-plane projection in <code>decision_testbench.py</code> has been numerically verified against <code>mqtt_bridge.py</code> across 2310 grid points with zero error (see BEV verification command above).</p>
-<h2 id="repository-structure">Repository Structure<a class="headerlink" href="#repository-structure" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>mqtt_bridge.py            Live system (detection, tracking, decision, MQTT)
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>decision_pipeline.py      Shared three-stage decision module
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>decision_testbench.py     Offline evaluation, optimization, Monte Carlo, latency sweep
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>sim_visualizer.py         Scenario visualization (renders MP4 videos)
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>generate_figures.py       Publication figure generation (EPS/PDF)
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>run_experiments.py        Reproduce all paper experiments in one command
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>run_height_pitch_sweep.py Height-pitch camera placement Monte Carlo sweep
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>eval_models.py            YOLO model evaluation on fisheye-augmented COCO
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>calibrate_fisheye.py      Fisheye lens calibration (checkerboard + bundle adjustment)
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>latency_report.py         Per-frame latency profiling
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>config.yaml               All runtime parameters
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>camera_calibration.json   Calibrated intrinsics (loaded automatically)
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>paper/                    LaTeX source
-</span></code></pre></div>
-<h2 id="decision-pipeline">Decision Pipeline<a class="headerlink" href="#decision-pipeline" title="Permanent link">&para;</a></h2>
-<p>Three stages evaluated in sequence:</p>
-<ol>
-<li><strong>Pedestrian presence</strong> — no pedestrian = IDLE.</li>
-<li><strong>Cyclist memory</strong> — no cyclist in last N frames = SAFE.</li>
-<li><strong>Pairwise closing check</strong> — for each bike-ped pair within [d_min, d_max], compare pairwise distance at frame t vs t-k using both agents' historical positions. Closing + cyclist moving = ALERT.</li>
-</ol>
-<p>Selected parameters (optimizer-derived): N=58 frames, d=[1.9, 24.8] m, lookback k=2, speed-adaptive d_max. Braking model uses 85th-percentile field measurements (PRT=0.84 s, decel=1.96 m/s^2).</p>
-<h2 id="conformance-scenarios">Conformance Scenarios<a class="headerlink" href="#conformance-scenarios" title="Permanent link">&para;</a></h2>
-<p>24 scripted scenarios covering: safe crossings (3), standard approaches (5), high-speed/accelerating (3), accessibility (2), multi-agent (3), edge cases (3), non-linear trajectories (4). Of 24, 21 contain ground-truth danger intervals. E-Scooter and Accelerating E-Bike scenarios use e-bicycle braking profile (decel=6.0 m/s^2).</p>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>Runtime parameters in <code>config.yaml</code>. Decision parameters under <code>decision:</code> match the optimizer-derived values deployed on the Jetson.</p>
-
-
-
-
-
-
-
-
-
-
-
-
-                
-              </article>
-            </div>
-          
-          
-<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+<main>
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>A warning light for the crosswalk</h2>
+        <p class="lede">Few systems try to warn unequipped road users in real time on commodity hardware. bikeped is a prototype that does. A fisheye camera on a pole 12&nbsp;ft above the kerb watches the crossing, a Jetson Orin detects and tracks pedestrians and cyclists, places them on the ground plane and decides 30 times a second whether a cyclist is closing on someone who is crossing. When one is, a light and a sound at the crosswalk say so. Under conformance testing with fisheye localization error, the selected configuration reaches <strong>93.3% sensitivity</strong> and <strong>92.3% specificity</strong> with a mean warning budget of <strong>3.3&nbsp;s</strong>.</p>
+      </div>
+      <div class="try">
+        <h3>Try it</h3>
+        <p>The simulator runs the decision logic in your browser on every scenario, with the camera model, detection failures and latency under your control.</p>
+        <div class="actions">
+          <a class="btn amber" href="simulator/">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>
+            Open the simulator
+          </a>
+          <a class="btn" href="start/quickstart/">Quickstart</a>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-    <div class="md-copyright__highlight">
-      bikeped — companion code for arXiv:2604.17046
+        <small>Nothing to install. The page is a single HTML file and also runs from a local copy of the repository.</small>
+      </div>
     </div>
-  
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://github.com/mkturkcan/bikeped" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
-    </a>
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://arxiv.org/abs/2604.17046" target="_blank" rel="noopener" title="arxiv.org" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0h149.5c17 0 33.3 6.7 45.3 18.7l106.5 106.6c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64zm208-5.5V152c0 13.3 10.7 24 24 24h93.5zM120 256c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24z"/></svg>
-    </a>
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped" target="_blank" rel="noopener" title="huggingface.co" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M448 205.8c-14.8 9.8-31.8 17.7-49.5 24-47 16.8-108.7 26.2-174.5 26.2s-127.6-9.5-174.5-26.2c-17.6-6.3-34.7-14.2-49.5-24V288c0 44.2 100.3 80 224 80s224-35.8 224-80zm0-77.8V80c0-44.2-100.3-80-224-80S0 35.8 0 80v48c0 44.2 100.3 80 224 80s224-35.8 224-80m-49.5 261.8C351.6 406.5 289.9 416 224 416s-127.6-9.5-174.5-26.2c-17.6-6.3-34.7-14.2-49.5-24V432c0 44.2 100.3 80 224 80s224-35.8 224-80v-66.2c-14.8 9.8-31.8 17.7-49.5 24"/></svg>
-    </a>
-  
-</div>
-      
+  </section>
+
+  <section id="decision">
+    <div class="wrap">
+      <h2>Three stages on every frame</h2>
+      <p class="lede">The decision layer runs after tracking and takes ground-plane positions as its input. With no pedestrian in view the state is idle. With a pedestrian and no cyclist seen in the last 58 frames it is safe. Otherwise every cyclist and pedestrian between 1.9&nbsp;m and 24.8&nbsp;m apart is tested as a pair: if they are closer than they were two frames earlier and the cyclist is moving, the state is alert, and if no pair is closing it is warning. The upper bound grows with speed to the cyclist's stopping distance, computed from a reaction time of 0.84&nbsp;s and a deceleration of 1.96&nbsp;m/s², the 85th-percentile field values for conventional bicycles.</p>
+      <figure class="mt">
+        <div class="frame flow" id="flow" data-state="alert">
+          <div class="flow-scroll">
+            <svg viewBox="0 0 1160 290" role="img" aria-label="Flow of the decision pipeline: pedestrian presence, cyclist memory and the pairwise closing check lead to the states idle, safe, warning and alert">
+              <path class="edge on-idle on-safe on-warning on-alert" d="M12 78H72"/>
+              <path class="edge on-safe on-warning on-alert" d="M342 78H392"/>
+              <path class="edge on-warning on-alert" d="M662 78H712"/>
+              <path class="edge on-alert" d="M982 78H1020"/>
+              <path class="edge on-idle" d="M207 124V214"/>
+              <path class="edge on-safe" d="M527 124V214"/>
+              <path class="edge on-warning" d="M847 124V214"/>
+              <text class="tag" x="12" y="64">tracks</text>
+              <text class="tag" x="354" y="64">yes</text>
+              <text class="tag" x="674" y="64">yes</text>
+              <text class="tag" x="988" y="64">yes</text>
+              <text class="tag" x="219" y="174">no</text>
+              <text class="tag" x="539" y="174">no</text>
+              <text class="tag" x="859" y="174">no</text>
+              <g class="node on-idle on-safe on-warning on-alert">
+                <rect x="72" y="32" width="270" height="92" rx="14"/>
+                <text class="num" x="94" y="66">01</text>
+                <text x="124" y="67">Pedestrian presence</text>
+                <text class="sub" x="94" y="98">Is anyone in the crossing area?</text>
+              </g>
+              <g class="node on-safe on-warning on-alert">
+                <rect x="392" y="32" width="270" height="92" rx="14"/>
+                <text class="num" x="414" y="66">02</text>
+                <text x="444" y="67">Cyclist memory</text>
+                <text class="sub" x="414" y="98">Any cyclist in the last 58 frames?</text>
+              </g>
+              <g class="node on-warning on-alert">
+                <rect x="712" y="32" width="270" height="92" rx="14"/>
+                <text class="num" x="734" y="66">03</text>
+                <text x="764" y="67">Pairwise closing check</text>
+                <text class="sub" x="734" y="98">Is a pair in range and closing?</text>
+              </g>
+              <g class="out is-idle">
+                <rect x="132" y="214" width="150" height="48" rx="24"/>
+                <circle cx="160" cy="238" r="6.5"/>
+                <text x="180" y="243">IDLE</text>
+              </g>
+              <g class="out is-safe">
+                <rect x="452" y="214" width="150" height="48" rx="24"/>
+                <circle cx="480" cy="238" r="6.5"/>
+                <text x="500" y="243">SAFE</text>
+              </g>
+              <g class="out is-warning">
+                <rect x="772" y="214" width="150" height="48" rx="24"/>
+                <circle cx="800" cy="238" r="6.5"/>
+                <text x="820" y="243">WARNING</text>
+              </g>
+              <g class="out is-alert">
+                <rect x="1020" y="54" width="128" height="48" rx="24"/>
+                <circle cx="1048" cy="78" r="6.5"/>
+                <text x="1068" y="83">ALERT</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="viewer-bar">
+          <div class="seg" role="group" aria-label="Decision state" data-for="flow">
+            <button type="button" aria-pressed="false" data-state="idle">Idle</button>
+            <button type="button" aria-pressed="false" data-state="safe">Safe</button>
+            <button type="button" aria-pressed="false" data-state="warning">Warning</button>
+            <button type="button" aria-pressed="true" data-state="alert">Alert</button>
+          </div>
+          <p class="flow-note" id="flow-note" aria-live="polite">A cyclist is moving and closing on a pedestrian inside the distance bounds.</p>
+        </div>
+      </figure>
+      <p class="lede">The same module, <code>decision_pipeline.py</code>, runs on the device and in the testbench. The <a href="system/decision/">decision reference</a> covers the parameters, how they were selected and the three baseline decision rules that the pairwise check is compared against.</p>
+    </div>
+  </section>
+
+  <section id="perception">
+    <div class="wrap">
+      <h2>One lens over the whole intersection</h2>
+      <p class="lede">The camera is a 197.9° fisheye, so a single view covers the crossing and both approaches. Corner detection and standard optimizers fail at that field of view, so the lens is calibrated by remapping to perspective views and fitting an equidistant model, r&nbsp;=&nbsp;f&middot;&theta;, with direct bundle adjustment. Each detection is located by sending the bottom centre of its box through a lookup table computed once from the calibration, which makes ground-plane localization one array read per object.</p>
+      <div class="gt mt">
+        <figure class="frame">
+          <img src="media/fisheye.jpg" alt="The crosswalk seen through the simulated fisheye lens" loading="lazy">
+        </figure>
+        <div class="stack">
+<pre aria-label="Calibration file"><code><span class="c">// camera_calibration.json</span>
+{
+  <span class="k">"model"</span>: <span class="s">"equidistant"</span>,
+  <span class="k">"cx"</span>: <span class="n">1752.69</span>,
+  <span class="k">"cy"</span>: <span class="n">1804.54</span>,
+  <span class="k">"focal_length"</span>: <span class="n">1013.31</span>,
+  <span class="k">"fov_deg"</span>: <span class="n">197.9</span>,
+  <span class="k">"radius_px"</span>: <span class="n">1750.0</span>,
+  <span class="k">"k1"</span>: <span class="n">0.0</span>,
+  <span class="k">"k2"</span>: <span class="n">0.0</span>,
+  <span class="k">"rms_error_px"</span>: <span class="n">4.6334</span>,
+  <span class="k">"num_frames"</span>: <span class="n">42</span>,
+  <span class="k">"num_points"</span>: <span class="n">1470</span>
+}</code></pre>
+          <p class="lede" style="margin:0;font-size:16px">The CARLA renderer reads the same file. It captures cube faces at the camera position and remaps them through this model, so a simulated frame has the geometry of a deployed one. <a href="system/perception/">Perception reference</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="scenarios">
+    <div class="wrap">
+      <h2>Scenarios with ground truth on every frame</h2>
+      <p class="lede" id="scenario-lede">The conformance suite is 24 scripted scenarios: safe crossings, standard and high-speed approaches, accessibility cases, multi-agent scenes, edge cases and non-linear trajectories. Each one is a set of timed waypoints on the ground plane, and a kinematic safety model labels every frame. A frame is dangerous when the cyclist is closing, the closest point of approach is within 5&nbsp;m, and either the stopping distance exceeds 80% of the remaining gap or the time to collision is under 3&nbsp;s.</p>
+      <div class="scenarios mt" id="scenario-grid"></div>
+      <div class="key"><span style="--k:var(--cyan)">Pedestrian path</span><span style="--k:var(--amber)">Cyclist path</span></div>
+    </div>
+  </section>
+
+  <section id="carla">
+    <div class="wrap">
+      <h2>The same scenarios in CARLA</h2>
+      <p class="lede" id="carla-lede">Every scenario can be rendered in CARLA from the waypoints that define it. Actors stay on their scripted positions, so the ground-truth labels of the testbench apply to the rendered frames, and each run writes video, per-frame 2D and 3D boxes and a manifest. The renderer drives CARLA 0.9.14 to 0.9.16 on Unreal Engine 4 and has a code path for CARLA 0.10 on Unreal Engine 5, whose current limits are listed in the <a href="simulation/carla/ue5/">UE5 notes</a>.</p>
+      <figure class="mt">
+        <div class="frame viewer" id="weather">
+          <img class="on" src="media/w_golden_hour.jpg" width="1920" height="1080" alt="The crosswalk in low evening sun" loading="lazy">
+          <img src="media/w_clear_noon.jpg" width="1920" height="1080" alt="The same view at noon" loading="lazy">
+          <img src="media/w_light_rain.jpg" width="1920" height="1080" alt="The same view in rain" loading="lazy">
+          <img src="media/w_wet_night.jpg" width="1920" height="1080" alt="The same view at night on wet asphalt" loading="lazy">
+        </div>
+        <div class="viewer-bar">
+          <div class="seg" role="group" aria-label="Weather preset" data-for="weather">
+            <button type="button" aria-pressed="true" data-i="0">Golden hour</button>
+            <button type="button" aria-pressed="false" data-i="1">Noon</button>
+            <button type="button" aria-pressed="false" data-i="2">Rain</button>
+            <button type="button" aria-pressed="false" data-i="3">Wet night</button>
+          </div>
+          <small id="weather-note">One camera and one scenario under four weather presets, CARLA 0.9.16.</small>
+        </div>
+      </figure>
+      <p class="lede">Six camera rigs share one scenario: the pole camera, the calibrated fisheye, a chase camera behind the first cyclist, a slow orbit around the conflict point, a kerbside tripod and a plan view. The overlay draws 3D boxes, trails, the closest pair, the decision state and a timeline that puts the ground-truth danger intervals next to the system's alerts.</p>
+      <div class="views mt">
+        <figure class="wide"><video src="media/clip.mp4" poster="media/hero_overlay.jpg" muted loop playsinline preload="none" aria-label="Bike Approaches Ped in a four-panel layout: pole, fisheye and chase views with the plan view"></video><figcaption>Bike Approaches Ped: pole, fisheye and chase views with the plan view</figcaption></figure>
+        <figure><img src="media/view_chase.jpg" alt="A chase camera following a cyclist through an intersection" loading="lazy"><figcaption>Chase, Multi-Speed Converging</figcaption></figure>
+        <figure><img src="media/view_street.jpg" alt="A kerbside camera at eye level" loading="lazy"><figcaption>Street, Multi-Speed Converging</figcaption></figure>
+        <figure><img src="media/orbit.jpg" alt="An orbiting camera around the conflict point" loading="lazy"><figcaption>Orbit, Bike Approaches Ped</figcaption></figure>
+        <figure><img src="media/wheelchair_pole.jpg" alt="A wheelchair user on the crosswalk seen from the pole" loading="lazy"><figcaption>Pole, Wheelchair User</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="run">
+    <div class="wrap">
+      <h2>Run it</h2>
+      <p class="lede">The testbench needs Python 3.10 or newer and four packages. The CARLA renderer needs a CARLA server and its Python client, and nothing else in the repository depends on them.</p>
+      <div class="code-grid mt">
+        <div>
+          <p class="label">Reproduce the tables and figures of the paper</p>
+<pre><code>pip install -r requirements.txt
+
+<span class="c"># every experiment, without the optimizer</span>
+python run_experiments.py --skip-optimizer
+
+<span class="c"># the pipeline comparison on its own</span>
+python decision_testbench.py --compare</code></pre>
+        </div>
+        <div>
+          <p class="label">Render a scenario in CARLA</p>
+<pre><code><span class="c"># start a server, then render two views with the overlay</span>
+python -m bikeped.sim server --engine ue4 --root /opt/carla
+
+python -m bikeped.sim render \
+    --scenario bike-approaches-ped \
+    --rig pole,fisheye \
+    --weather golden_hour \
+    --layout split</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="repo">
+    <div class="wrap">
+      <h2>In the repository</h2>
+      <div class="cards three mt">
+        <a class="card small" href="system/decision/"><div class="body"><h3>Decision pipeline</h3><p>The three-stage module that runs on the device, with four interchangeable decision rules. <code>decision_pipeline.py</code></p></div></a>
+        <a class="card small" href="experiments/"><div class="body"><h3>Testbench</h3><p>Scenario simulation with fisheye localization error, detection failures, a latency sweep, Monte Carlo runs and the parameter optimizer.</p></div></a>
+        <a class="card small" href="scenarios/"><div class="body"><h3>Scenario library</h3><p>The conformance suite, the extended suites, path builders and seeded generators. <code>bikeped.scenarios</code></p></div></a>
+        <a class="card small" href="simulation/carla/"><div class="body"><h3>CARLA renderer</h3><p>Camera rigs, weather presets, ground truth, overlays and video output. <code>bikeped.sim</code></p></div></a>
+        <a class="card small" href="calibration/"><div class="body"><h3>Fisheye calibration</h3><p>Checkerboard capture, perspective remapping, bundle adjustment and a comparison of four projection models.</p></div></a>
+        <a class="card small" href="deployment/"><div class="body"><h3>Deployment kit</h3><p>A self-contained bridge script to adapt to another intersection, with a simulated light and optional sounds. <code>bridge_starter/</code></p></div></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="dataset">
+    <div class="wrap">
+      <h2>Dataset and paper</h2>
+      <div class="cards mt">
+        <a class="card" href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped">
+          <div class="body">
+            <h3>bikeped Conformance Scenarios</h3>
+            <p>The 24 conformance scenarios with their waypoint paths, per-frame ground-truth danger labels and paired schematic and CARLA videos, released under CC BY 4.0.</p>
+            <table>
+              <tr><td>Scenarios</td><td>24</td></tr>
+              <tr><td>With danger intervals</td><td>21</td></tr>
+              <tr><td>Labelled agent-frames</td><td>12,901</td></tr>
+            </table>
+            <span class="go">Open on Hugging Face<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+          </div>
+        </a>
+        <a class="card" href="https://arxiv.org/abs/2604.17046">
+          <div class="body">
+            <h3>Technical report</h3>
+            <p>A Real-Time Bike-Pedestrian Safety System with Wide-Angle Perception and Evaluation Testbed for Urban Intersections. Calibration, perception, the conformance simulation and the decision layer.</p>
+            <table>
+              <tr><td>Sensitivity</td><td>93.3%</td></tr>
+              <tr><td>Specificity</td><td>92.3%</td></tr>
+              <tr><td>Mean warning budget</td><td>3.3 s</td></tr>
+            </table>
+            <span class="go">Read on arXiv<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="citation">
+    <div class="wrap">
+      <h2>Citation</h2>
+      <div class="cite mt">
+        <button class="copy" type="button" id="copy">Copy</button>
+<pre id="bibtex"><code>@misc{turkcan2026realtimebikepedestriansafetywideangle,
+  title         = {A Real-Time Bike-Pedestrian Safety System with Wide-Angle Perception and Evaluation Testbed for Urban Intersections},
+  author        = {Mehmet Kerem Turkcan},
+  year          = {2026},
+  eprint        = {2604.17046},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CV},
+  url           = {https://arxiv.org/abs/2604.17046}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap row">
+    <div>
+      <p><a href="https://mehmetkeremturkcan.com/">Mehmet Kerem Turkcan</a></p>
+      <p>The dataset is released under CC BY 4.0. Renders are made with the CARLA simulator, which is built on Unreal Engine; Unreal and Unreal Engine are trademarks or registered trademarks of Epic Games, Inc.</p>
+    </div>
+    <div>
+      <a href="https://github.com/mkturkcan/bikeped">GitHub</a>&emsp;<a href="https://arxiv.org/abs/2604.17046">arXiv</a>&emsp;<a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped">Dataset</a>&emsp;<a href="start/">Docs</a>
     </div>
   </div>
 </footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    
-    
-      
-      
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
-    
-    
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
-      
-    
-  </body>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Header: show what the system tracks under the pointer, and drift until the visitor moves it.
+  var hero = document.getElementById("hero");
+  var tracks = document.getElementById("hero-tracks");
+  function startReveal() {
+    tracks.hidden = false;
+    hero.classList.add("has-overlay");
+    document.getElementById("hero-note").textContent =
+      "The conformance scenario Bike Approaches Ped, rendered in CARLA from the pole camera. Move the pointer over the image to see what the system tracks.";
+    var touched = false, t0 = performance.now();
+    function place(x, y) { hero.style.setProperty("--x", x + "px"); hero.style.setProperty("--y", y + "px"); }
+    hero.addEventListener("pointermove", function (e) {
+      touched = true;
+      var r = hero.getBoundingClientRect();
+      place(e.clientX - r.left, e.clientY - r.top);
+    });
+    function drift(now) {
+      if (touched) return;
+      var r = hero.getBoundingClientRect(), t = (now - t0) / 1000;
+      place(r.width * (0.56 + 0.14 * Math.sin(t * 0.35)), r.height * (0.5 + 0.07 * Math.sin(t * 0.7)));
+      requestAnimationFrame(drift);
+    }
+    if (!reduce) requestAnimationFrame(drift);
+  }
+  if (tracks.complete && tracks.naturalWidth) startReveal();
+  else tracks.addEventListener("load", startReveal);
+
+  // A segmented control that steps through items, cycles while visible and stops once used.
+  function stepper(target, buttons, apply, period) {
+    var current = 0, timer = null, stopped = false;
+    buttons.forEach(function (b, k) { if (b.getAttribute("aria-pressed") === "true") current = k; });
+    function show(i) {
+      current = i;
+      buttons.forEach(function (b, k) { b.setAttribute("aria-pressed", k === i ? "true" : "false"); });
+      apply(i, buttons[i]);
+    }
+    buttons.forEach(function (b, k) {
+      b.addEventListener("click", function () { stopped = true; clearInterval(timer); timer = null; show(k); });
+    });
+    if (!reduce && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && timer === null && !stopped) {
+            timer = setInterval(function () { show((current + 1) % buttons.length); }, period);
+          } else if (!entry.isIntersecting && timer !== null) {
+            clearInterval(timer); timer = null;
+          }
+        });
+      }, { threshold: 0.5 }).observe(target);
+    }
+  }
+
+  // Decision states.
+  var flow = document.getElementById("flow");
+  var note = document.getElementById("flow-note");
+  var notes = {
+    idle: "No pedestrian is in view, so there is nobody to warn.",
+    safe: "A pedestrian is present and no cyclist has been seen in the last 58 frames.",
+    warning: "A pedestrian and a cyclist are both present, and no pair is closing inside the distance bounds.",
+    alert: "A cyclist is moving and closing on a pedestrian inside the distance bounds."
+  };
+  stepper(flow, Array.prototype.slice.call(document.querySelectorAll('.seg[data-for="flow"] button')), function (i, b) {
+    flow.dataset.state = b.dataset.state;
+    note.textContent = notes[b.dataset.state];
+  }, 3200);
+
+  // Weather presets.
+  var weather = document.getElementById("weather");
+  if (weather) {
+    var shots = weather.querySelectorAll("img");
+    stepper(weather, Array.prototype.slice.call(document.querySelectorAll('.seg[data-for="weather"] button')), function (i) {
+      shots.forEach(function (img, k) { img.classList.toggle("on", k === i); });
+    }, 3500);
+  }
+
+  // Scenario thumbnails from the catalog written by `python -m bikeped.scenarios export`.
+  var grid = document.getElementById("scenario-grid");
+  var featured = ["bike-approaches-ped", "high-speed-near-miss", "occluded-emergence", "wheelchair-user",
+                  "cyclist-abort", "dense-pedestrian-group", "swerving-cyclist", "u-turn-cyclist"];
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]; }); }
+  fetch("assets/scenarios/catalog.json").then(function (r) {
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }).then(function (cat) {
+    var list = Array.isArray(cat) ? cat : (cat.scenarios || []);
+    var byId = {};
+    list.forEach(function (s) { byId[s.id] = s; });
+    var pick = featured.map(function (id) { return byId[id]; }).filter(Boolean);
+    if (pick.length < 4) pick = list.filter(function (s) { return s.suite === "conformance"; }).slice(0, 8);
+    grid.innerHTML = pick.map(function (s) {
+      return '<a href="scenarios/conformance/#' + esc(s.id) + '">' +
+        '<img src="assets/scenarios/' + esc(s.id) + '.svg" alt="Paths of the scenario ' + esc(s.name) + '" loading="lazy">' +
+        '<span><b>' + esc(s.name) + '</b><i>' + esc(s.expected_dominant || "") + '</i></span></a>';
+    }).join("");
+    var suites = {};
+    list.forEach(function (s) { suites[s.suite] = (suites[s.suite] || 0) + 1; });
+    var extra = Object.keys(suites).filter(function (k) { return k !== "conformance"; });
+    if (extra.length) {
+      var n = extra.reduce(function (a, k) { return a + suites[k]; }, 0);
+      document.getElementById("scenario-lede").insertAdjacentHTML("beforeend",
+        ' The library adds ' + n + ' more in the ' + extra.map(esc).join(" and ") +
+        ' suites. <a href="scenarios/">Browse the scenarios</a>');
+    }
+  }).catch(function () { grid.hidden = true; document.querySelector(".key").hidden = true; });
+
+  // Play the composite clip only while it is on screen.
+  var clip = document.querySelector(".views video");
+  if (clip && !reduce && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { clip.play().catch(function () {}); } else { clip.pause(); } });
+    }, { threshold: 0.4 }).observe(clip);
+  } else if (clip) { clip.controls = true; }
+
+  // Citation.
+  document.getElementById("copy").addEventListener("click", function () {
+    var btn = this, text = document.getElementById("bibtex").innerText;
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+      });
+    } catch (e) { /* clipboard unavailable */ }
+  });
+})();
+</script>
+</body>
 </html>

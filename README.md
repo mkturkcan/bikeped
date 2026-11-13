@@ -1,98 +1,196 @@
-<h1 align="center">BIKEPED</h1>
+<h1 align="center">bikeped</h1>
 
 <p align="center">
-  <strong>Real-time pedestrian–cyclist collision warning for urban intersections.</strong><br/>
-  30 FPS response system designed for Jetson Orin devices.
+  <strong>Real-time collision warnings for pedestrians and cyclists at urban intersections.</strong><br/>
+  One fisheye camera, one Jetson Orin, 30 fps.
 </p>
 
 <p align="center">
   <a href="https://arxiv.org/abs/2604.17046"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2604.17046-B31B1B?logo=arxiv&logoColor=white"></a>
-  <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped"><img alt="Dataset" src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Dataset-FFD21E"></a>
-  <a href="https://mkturkcan.github.io/bikeped/"><img alt="Docs" src="https://img.shields.io/badge/docs-pdoc-2563eb"></a>
-  <a href="https://github.com/mkturkcan/bikeped"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-mkturkcan%2Fbikeped-181717?logo=github&logoColor=white"></a>
+  <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped"><img alt="Dataset" src="https://img.shields.io/badge/Hugging%20Face-dataset-FFD21E"></a>
+  <a href="https://mkturkcan.github.io/bikeped/start/"><img alt="Docs" src="https://img.shields.io/badge/docs-mkturkcan.github.io-ffb547"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white">
+  <img alt="CARLA" src="https://img.shields.io/badge/CARLA-0.9.16%20%7C%200.10.0-6fe3ff">
   <img alt="Platform" src="https://img.shields.io/badge/edge-NVIDIA%20Jetson%20Orin-76B900?logo=nvidia&logoColor=white">
 </p>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2604.17046">📄 Paper</a> ·
-  <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped">🤗 Dataset</a> ·
-  <a href="https://mkturkcan.github.io/bikeped/">📖 API docs</a> ·
-  <a href="https://mkturkcan.github.io/bikeped/simulator/">🎮 Simulator</a> ·
-  <a href="bridge_starter/">🛠️ Adaptation kit</a> ·
-  <a href="#reproduce-paper-results">🔁 Reproduce</a>
+  <a href="https://mkturkcan.github.io/bikeped/">Project page</a> ·
+  <a href="https://arxiv.org/abs/2604.17046">Paper</a> ·
+  <a href="https://mkturkcan.github.io/bikeped/start/">Documentation</a> ·
+  <a href="https://mkturkcan.github.io/bikeped/simulator/">Browser simulator</a> ·
+  <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped">Dataset</a> ·
+  <a href="bridge_starter/">Deployment kit</a>
 </p>
 
----
+<p align="center">
+  <img src="docs/media/hero.jpg" alt="A conformance scenario rendered in CARLA from the pole camera" width="100%">
+</p>
 
-## What's in this repo
+bikeped is a prototype warning system for crossings that cyclists and pedestrians share. A fisheye
+camera on a pole watches the crosswalk, a Jetson Orin detects and tracks the people in view, places
+them on the ground plane and decides on every frame whether a cyclist is closing on someone who is
+crossing. When one is, a light and a sound at the crosswalk say so.
 
-| | |
+This repository holds the decision logic that runs on the device, the testbench that produces every
+number in the [paper](https://arxiv.org/abs/2604.17046), a scenario library, a CARLA renderer for
+Unreal Engine 4 and 5, the fisheye calibration tools and a starter kit for another intersection.
+
+Under conformance testing with fisheye localization error, the selected configuration reaches 93.3%
+sensitivity and 92.3% specificity with a mean warning budget of 3.3 s. The first two figures come
+out of `python decision_testbench.py --compare` in a few minutes on a laptop.
+
+## Contents
+
+| Path | What it is |
 |---|---|
-| **`bridge_starter/`** | Drop-in adaptation kit. One self-contained script with a USER CONFIG block at the top, a simulated indicator light, optional sounds, and an auto-downloaded YOLO11xxl detector. Start here if you want to deploy on a different intersection. |
-| **`simulator/index.html`** | Interactive browser-based testbench (no install — open the file). Renders the decision pipeline live with all 24 conformance scenarios and the seven pipeline / decision-rule variants from the paper. Hosted at [mkturkcan.github.io/bikeped/simulator/](https://mkturkcan.github.io/bikeped/simulator/). |
-| **`decision_pipeline.py` + `decision_testbench.py`** | The three-stage decision logic and the offline scenario runner used for every number in the paper. |
-| **`run_experiments.py`** | One command that reproduces every table and figure. |
-| **`calibration/`** | Fisheye intrinsic calibration (perspective remap + bundle adjustment). |
-| **`tools/`** | Standalone utilities: API doc builder, latency report, model evaluator. |
-| **`config.yaml` + `camera_calibration.json`** | Runtime parameters and calibrated intrinsics from the deployed system. |
-
-The companion dataset (24 conformance scenarios with paired schematic + CARLA-photorealistic videos and per-frame ground-truth danger labels) lives on Hugging Face: [`mehmetkeremturkcan/bikeped`](https://huggingface.co/datasets/mehmetkeremturkcan/bikeped).
+| [`decision_pipeline.py`](decision_pipeline.py) | The three-stage decision module. The same file runs on the device and in the testbench. |
+| [`decision_testbench.py`](decision_testbench.py) | Offline evaluation: fisheye localization error, detection failures, latency sweep, Monte Carlo runs and the parameter optimizer. |
+| [`run_experiments.py`](run_experiments.py) | One command for every table and figure in the paper. |
+| [`bikeped/scenarios/`](bikeped/scenarios/) | The scenario library: the 24 conformance scenarios, the extended and stress suites, path builders and seeded generators. |
+| [`bikeped/sim/`](bikeped/sim/) | The CARLA renderer: camera rigs with a calibrated fisheye, weather presets, ground truth, overlays and video output. |
+| [`simulator/`](simulator/) | The browser simulator, a single HTML file. Hosted at [mkturkcan.github.io/bikeped/simulator](https://mkturkcan.github.io/bikeped/simulator/). |
+| [`calibration/`](calibration/) | Fisheye intrinsic calibration by perspective remapping and bundle adjustment. |
+| [`bridge_starter/`](bridge_starter/) | A self-contained live system to adapt to another intersection. |
+| [`tools/`](tools/) | Docs build, latency report, detector evaluation, crosswalk extraction for CARLA maps. |
+| `config.yaml`, `camera_calibration.json`, `crosswalks.json` | Runtime parameters, calibrated intrinsics, and crosswalk geometry of the default CARLA map. |
 
 ## Install
 
-Python ≥ 3.10. CUDA-capable GPU recommended for real-time throughput.
+Python 3.10 or newer.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-The deployed live MQTT bridge for the production system isn't included here — see [`bridge_starter/`](bridge_starter/) for a slim, self-contained version that any team can adapt to a new intersection.
+That covers the testbench, the scenario library and the imaging half of the renderer. Rendering in
+CARLA also needs a CARLA server and the Python client of the same version, described under
+[CARLA rendering](#carla-rendering). The detector, TensorRT and the indicator hardware are only
+needed for a live deployment and are covered in [`bridge_starter/`](bridge_starter/).
 
-## Reproduce paper results
-
-One command runs every experiment in the paper and writes every figure:
+## Reproduce the paper
 
 ```bash
-python run_experiments.py                   # full pipeline (~45 min)
-python run_experiments.py --skip-optimizer  # skip optimizer (~10 min)
+python run_experiments.py                   # everything, about 45 minutes
+python run_experiments.py --skip-optimizer  # without the optimizer, about 10 minutes
 ```
 
-Run an individual experiment:
+Individual experiments:
 
 ```bash
-python decision_testbench.py --compare                  # Table 2 (with fisheye localization error)
-python decision_testbench.py --no-bbox-noise --compare  # ablation without localization error
-python decision_testbench.py --latency-sweep            # Figure 4 (latency sweep)
+python decision_testbench.py --compare                  # Table 2, with fisheye localization error
+python decision_testbench.py --no-bbox-noise --compare  # the same without localization error
+python decision_testbench.py --latency-sweep            # Figure 4, camera latency sweep
 python decision_testbench.py --monte-carlo --mc-trials 50
-python decision_testbench.py --optimize                 # differential evolution (~30 min)
-python decision_testbench.py --error-map                # bounding-box error map
-python run_height_pitch_sweep.py                        # Figure 8b (~30 min)
-python generate_figures.py                              # all publication figures
-python sim_visualizer.py --no-display                   # render scenario MP4s
+python decision_testbench.py --optimize                 # differential evolution, about 30 minutes
+python decision_testbench.py --error-map                # bounding-box localization error
+python run_height_pitch_sweep.py                        # Figure 8b, about 30 minutes
+python generate_figures.py                              # publication figures
+python sim_visualizer.py --no-display                   # schematic scenario videos
 ```
 
-## Adapting the bridge to a new deployment
+## Scenarios
+
+A scenario is a list of agents, each with timed waypoints on the ground plane. The testbench
+interpolates them at 30 fps and a kinematic safety model labels every frame as dangerous or not.
+
+```bash
+python -m bikeped.scenarios list                      # every suite
+python -m bikeped.scenarios show fast-approach        # one scenario with its paths
+python -m bikeped.scenarios evaluate --suite extended # run the decision pipeline over a suite
+python -m bikeped.scenarios generate --family time-gap --n 20 --seed 0 --out sweep.json
+```
+
+<!-- suites:start -->
+| Suite | Scenarios | Purpose |
+|---|---:|---|
+| `conformance` | 24 | The scenarios behind every number in the paper. 21 contain ground-truth danger intervals. |
+| `extended` | 41 | Turning conflicts, occlusion, yielding riders, groups, micromobility and true negatives. |
+| `stress` | 8 | Dense scenes for throughput and tracker load. |
+<!-- suites:end -->
+
+The conformance scenarios, with paired schematic and CARLA videos and per-frame labels, are also
+published as a [dataset](https://huggingface.co/datasets/mehmetkeremturkcan/bikeped).
+
+## Browser simulator
+
+[`simulator/index.html`](simulator/index.html) runs the decision pipeline in JavaScript with the
+camera model, detection failures and latency exposed as controls. Open the file directly or use
+the [hosted copy](https://mkturkcan.github.io/bikeped/simulator/).
+
+## CARLA rendering
+
+`bikeped.sim` renders any scenario in CARLA from the waypoints that define it. Actors stay on their
+scripted positions, so the ground-truth labels of the testbench apply to the rendered frames.
+
+```bash
+# start a server (or point --host/--port at one that is running)
+python -m bikeped.sim server --engine ue4 --root /opt/carla
+
+# what the server can do: engine, maps, cyclist and walker blueprints, sensors
+python -m bikeped.sim probe
+
+# render one scenario from the pole camera and through the fisheye, with the overlay
+python -m bikeped.sim render --scenario bike-approaches-ped \
+    --rig pole,fisheye --weather golden_hour --layout split
+```
+
+<!-- engines:start -->
+| | Unreal Engine 4 | Unreal Engine 5 |
+|---|---|---|
+| CARLA version | 0.9.14 to 0.9.16 | 0.10.0 |
+| Launcher | `CarlaUE4.sh` | `CarlaUnreal.sh` |
+| Python client | `pip install carla==0.9.16` | the cp310 wheel in the CARLA package |
+| Cyclists | bicycle blueprints | no rideable two-wheeler in 0.10.0, see below |
+<!-- engines:end -->
+
+Views are `pole`, `fisheye`, `chase`, `orbit`, `street` and `bev`. The fisheye view is rendered as
+cube faces and remapped through `camera_calibration.json`, so a simulated frame has the geometry of
+a frame from the deployed camera. Weather presets are `clear_noon`, `golden_hour`, `overcast`,
+`light_rain`, `heavy_rain`, `dusk`, `clear_night`, `wet_night` and `fog`.
+
+Each run writes a directory:
+
+```
+renders/ue4_bike-approaches-ped_golden_hour/
+├── manifest.json          run metadata, camera models, per-frame agents, states and danger labels
+├── video/pole.mp4         clean view
+├── video/pole_overlay.mp4 view with boxes, trails, state and timeline
+├── video/composite.mp4    the chosen layout
+├── gt/pole.jsonl          per-frame 2D boxes, 3D corners and visibility
+└── stills/                first frame, first alert, closest approach
+```
+
+`python -m bikeped.sim export RUN_DIR --format coco` (or `yolo`) turns a run into a detection
+dataset.
+
+## Deploying on another intersection
 
 Copy [`bridge_starter/`](bridge_starter/) into your own project, then:
 
-1. Edit the **USER CONFIG** block at the top of [`bridge.py`](bridge_starter/bridge.py): camera intrinsics, MQTT broker, sound paths, model name.
-2. (First run only) the script downloads `yolo11xxl.pt` from Hugging Face and tries to export it to a TensorRT engine.
-3. `python bridge.py`.
+1. Edit the USER CONFIG block at the top of [`bridge.py`](bridge_starter/bridge.py): camera
+   intrinsics, MQTT broker, sound paths, model name.
+2. Run `python bridge.py`. On the first run it downloads `yolo11xxl.pt` from Hugging Face and tries
+   to export a TensorRT engine.
 
-The kit ships a `SimulatedLight` (prints colour transitions to stdout) so the system runs end-to-end without any indicator hardware. Sounds are optional and skipped silently if the WAV files are missing. See [`bridge_starter/README.md`](bridge_starter/README.md) for the full guide, including how to tune `DEC_PROX_MIN_M` and the rider-on-bike suppression for your detector and camera geometry.
+The kit ships a `SimulatedLight` that prints colour transitions, so the system runs end to end
+without indicator hardware. Sounds are optional and are skipped when the WAV files are missing.
+[`bridge_starter/README.md`](bridge_starter/README.md) covers tuning `DEC_PROX_MIN_M` and the
+rider-on-bike suppression for your detector and camera geometry.
 
-## Perception pipeline
+## How it works
 
-The testbench replicates the geometry of the deployed system end-to-end:
+### Perception
+
+The testbench replicates the geometry of the deployed camera:
 
 ```mermaid
 graph LR
-    subgraph Physical Model
+    subgraph Physical model
         A[Fisheye lens<br/>3500x3500 circle] --> B[Sensor capture<br/>3840x2160<br/>top/bottom clipped]
     end
 
-    subgraph Testbench / Simulator
+    subgraph Testbench and simulator
         I[3D world position] --> J[FisheyeCamera<br/>world_to_pixel<br/>3500x3500]
         J --> K{On sensor?<br/>rows 670-2829}
         K -->|yes| L[projected_bbox_area<br/>YOLO input scale]
@@ -102,93 +200,79 @@ graph LR
     end
 ```
 
-`FisheyeCamera` in [`decision_testbench.py`](decision_testbench.py) implements the equidistant model `r = f·θ` with optional Kannala–Brandt-style `k1`, `k2` polynomial terms loaded from `camera_calibration.json`. Forward and inverse projections agree to floating-point precision, and match the deployed ground-coordinate LUT bit-for-bit when both run from the same `camera_calibration.json`.
+`FisheyeCamera` in [`decision_testbench.py`](decision_testbench.py) implements the equidistant model
+`r = f·θ` with optional `k1`, `k2` polynomial terms loaded from `camera_calibration.json`. Forward
+and inverse projections agree to floating-point precision and match the deployed ground-coordinate
+lookup table when both read the same calibration file.
 
-## Decision pipeline
+### Decision
 
-Three stages evaluated in sequence:
+Three stages run in order on every frame:
 
-1. **Pedestrian presence** — no pedestrian = `IDLE`.
-2. **Cyclist memory** — no cyclist in last *N* frames = `SAFE`.
-3. **Pairwise closing check** — for each bike–ped pair within `[d_min, d_max]`, compare pairwise distance at frame *t* vs *t − k* using both agents' historical positions. Closing + cyclist moving = `ALERT`.
+1. Pedestrian presence. With no pedestrian in view the state is `IDLE`.
+2. Cyclist memory. With no cyclist in the last *N* frames the state is `SAFE`.
+3. Pairwise closing check. For each cyclist and pedestrian between `d_min` and `d_max` apart, the
+   distance at frame *t* is compared with the distance at frame *t − k*, using the past positions
+   of both. A closing pair with a moving cyclist gives `ALERT`, and no closing pair gives `WARNING`.
 
-Selected parameters (optimizer-derived): `N=58` frames, `d=[1.9, 24.8]` m, lookback `k=2`, speed-adaptive `d_max`. Braking model uses 85th-percentile field measurements (PRT = 0.84 s, decel = 1.96 m/s²).
-
-## Conformance scenarios
-
-24 scripted scenarios covering:
-
-| Category               | Scenarios |
-|:-----------------------|:---------:|
-| Safe crossings         | 3 |
-| Standard approaches    | 5 |
-| High-speed / accelerating | 3 |
-| Accessibility          | 2 |
-| Multi-agent            | 3 |
-| Edge cases             | 3 |
-| Non-linear trajectories | 4 |
-
-21 of the 24 contain ground-truth danger intervals. The E-Scooter and Accelerating E-Bike scenarios use the e-bicycle braking profile (decel = 6.0 m/s²). Per-frame waypoint paths and danger labels — plus paired schematic + CARLA-photorealistic videos for every scenario — are published as the [bikeped dataset](https://huggingface.co/datasets/mehmetkeremturkcan/bikeped).
+The selected parameters come from the optimizer: `N = 58` frames, `d = [1.9, 24.8]` m, lookback
+`k = 2`, and a `d_max` that grows to the cyclist's stopping distance at speed. The braking model
+uses 85th-percentile field measurements (reaction time 0.84 s, deceleration 1.96 m/s²). The E-Scooter
+and Accelerating E-Bike scenarios use the e-bicycle profile (6.0 m/s²).
 
 ## Documentation
 
-Live: **<https://mkturkcan.github.io/bikeped/>** — built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) and [mkdocstrings](https://mkdocstrings.github.io), populated from this README plus every module's docstrings. Hosted on GitHub Pages from the [`docs/`](docs/) folder of this repo.
-
-To rebuild locally:
+The site at <https://mkturkcan.github.io/bikeped/> is built with MkDocs Material from
+[`docs_src/`](docs_src/) and served by GitHub Pages from [`docs/`](docs/).
 
 ```bash
 pip install mkdocs-material "mkdocstrings[python]" pymdown-extensions
-python tools/build_docs.py            # builds docs/
-python tools/build_docs.py --serve    # live preview on http://localhost:8000
-python tools/build_docs.py --open     # build and open in default browser
+python tools/build_docs.py            # build docs/
+python tools/build_docs.py --serve    # live preview
 ```
 
-Commit the regenerated `docs/` folder to publish the update.
+Commit the regenerated `docs/` folder to publish.
+
+## Tests
+
+```bash
+pip install pytest
+python -m pytest tests -q
+```
+
+The tests run without CARLA. The renderer is exercised against an in-memory stand-in for the CARLA
+API, configured once as a 0.9.16 server and once as a 0.10.0 server.
 
 ## Repository layout
 
 ```
-repo/bikeped/
-├── README.md
-├── requirements.txt
-├── config.yaml                        runtime parameters
-├── camera_calibration.json            calibrated intrinsics (read by every script)
-├── crosswalks.json                    extracted CARLA crosswalk geometry
+bikeped/
+├── decision_pipeline.py           three-stage decision module, shared with the device
+├── decision_testbench.py          offline evaluation, optimizer, Monte Carlo
+├── run_experiments.py             one-command paper reproduction
+├── run_height_pitch_sweep.py      camera height and pitch placement sweep
+├── generate_figures.py            publication figures
+├── sim_visualizer.py              schematic scenario videos
+├── crosswalk_analysis.py          deployment and road-width analysis
+├── carla_scenario.py              previous CARLA entry point, forwards to bikeped.sim
+├── config.yaml                    runtime parameters
+├── camera_calibration.json        calibrated intrinsics, read by every script
+├── crosswalks.json                crosswalk geometry extracted from Town10HD_Opt
 │
-├── decision_pipeline.py               three-stage decision module (shared)
-├── decision_testbench.py              offline evaluation, optimizer, Monte Carlo
-├── sim_visualizer.py                  renders scenario MP4s
-├── generate_figures.py                publication figures (EPS / PDF)
-├── run_experiments.py                 one-command paper reproduction
-├── run_height_pitch_sweep.py          height-pitch placement sweep
-├── carla_scenario.py                  CARLA scenario runner
-├── crosswalk_analysis.py              deployment / road-width analysis
+├── bikeped/
+│   ├── scenarios/                 scenario library and its command line
+│   └── sim/                       CARLA renderer for UE4 and UE5 and its command line
 │
-├── calibration/                       fisheye calibration tools
-│   ├── calibrate_fisheye.py           checkerboard + bundle adjustment
-│   ├── capture_calibration.py         live camera frame capture
-│   └── compare_fisheye_models.py      fit all four projection models
-│
-├── tools/                             standalone utilities
-│   ├── build_docs.py                  pdoc API-doc builder
-│   ├── latency_report.py              per-step latency stats
-│   ├── eval_models.py                 YOLO eval on fisheye-augmented COCO
-│   └── carla_find_crosswalks.py       crosswalk extractor for CARLA maps
-│
-├── simulator/                        interactive browser testbench
-│   └── index.html                    self-contained HTML/JS (open in any browser)
-│
-└── bridge_starter/                   drop-in adaptation kit (self-contained)
-    ├── README.md
-    ├── bridge.py                     slim live system with USER CONFIG block
-    ├── decision_pipeline.py          (mirror of the top-level file)
-    ├── requirements.txt
-    └── .gitignore
+├── calibration/                   fisheye calibration
+├── bridge_starter/                deployment kit, self-contained
+├── simulator/                     browser simulator
+├── tools/                         docs build, latency report, detector evaluation, crosswalk extraction
+├── tests/                         unit and end-to-end tests, no CARLA needed
+├── docs_src/                      documentation sources and the project page
+└── docs/                          built site, served by GitHub Pages
 ```
 
 ## Citation
-
-If you use this code or the scenario dataset, please cite:
 
 ```bibtex
 @misc{turkcan2026realtimebikepedestriansafetywideangle,
@@ -201,5 +285,3 @@ If you use this code or the scenario dataset, please cite:
   url           = {https://arxiv.org/abs/2604.17046}
 }
 ```
-
-Paper: <https://arxiv.org/abs/2604.17046> · Dataset: <https://huggingface.co/datasets/mehmetkeremturkcan/bikeped>

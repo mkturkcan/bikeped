@@ -1,0 +1,3379 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pedestrian-cyclist collision warning for urban intersections, with the testbench and simulators behind arXiv 2604.17046.">
+      
+      
+        <meta name="author" content="Mehmet Kerem Turkcan">
+      
+      
+        <link rel="canonical" href="https://mkturkcan.github.io/bikeped/scenarios/extended/">
+      
+      
+        <link rel="prev" href="../conformance/">
+      
+      
+        <link rel="next" href="../authoring/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../media/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Extended suites - bikeped</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Geist:300,300i,400,400i,700,700i%7CGeist+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Geist";--md-code-font:"Geist Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#extended-suites" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../" title="bikeped" class="md-header__button md-logo" aria-label="bikeped" data-md-component="logo">
+      
+  <img src="../../media/favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            bikeped
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Extended suites
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mkturkcan/bikeped" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mkturkcan/bikeped
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../start/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Start
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../system/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Scenarios
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../simulation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Simulation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../experiments/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Experiments
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../calibration/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deploy
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/cli/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="bikeped" class="md-nav__button md-logo" aria-label="bikeped" data-md-component="logo">
+      
+  <img src="../../media/favicon.svg" alt="logo">
+
+    </a>
+    bikeped
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mkturkcan/bikeped" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mkturkcan/bikeped
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../start/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start/repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../system/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/perception/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/decision/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/safety-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safety model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/uncertainty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenarios
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Scenarios
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conformance suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extended suites
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extended suites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-a-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with a suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extended
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stress
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../simulation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Browser simulator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/testbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Offline testbench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../simulation/carla/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CARLA
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CARLA
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/ue4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unreal Engine 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/ue5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unreal Engine 5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/cameras/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cameras
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/actors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Actors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/ground-truth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/carla/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../experiments/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Experiments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/latency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Latency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experiments/placement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Camera placement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../calibration/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deploy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bridge starter kit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/decision_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    decision_pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/decision_testbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    decision_testbench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sim_visualizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sim_visualizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/generate_figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    generate_figures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/run_experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/run_height_pitch_sweep/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_height_pitch_sweep
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/crosswalk_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    crosswalk_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/calibrate_fisheye/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    calibrate_fisheye
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/capture_calibration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    capture_calibration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compare_fisheye_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    compare_fisheye_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/eval_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    eval_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/latency_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    latency_report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bikeped_scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bikeped.scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bikeped_sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bikeped.sim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-a-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with a suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extended
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stress
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="extended-suites">Extended suites<a class="headerlink" href="#extended-suites" title="Permanent link">&para;</a></h1>
+<p>The conformance suite is fixed by the paper. Scenarios written after it live in separate suites of <code>bikeped.scenarios</code>, so the published numbers stay reproducible while the library grows. This page describes the <code>extended</code> and <code>stress</code> suites and lists their scenarios.</p>
+<h2 id="working-with-a-suite">Working with a suite<a class="headerlink" href="#working-with-a-suite" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>bikeped.scenarios<span class="w"> </span>list<span class="w"> </span>--suite<span class="w"> </span>extended
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>-m<span class="w"> </span>bikeped.scenarios<span class="w"> </span>evaluate<span class="w"> </span>--suite<span class="w"> </span>extended
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">bikeped.scenarios</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_suite</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">for</span> <span class="n">scenario</span> <span class="ow">in</span> <span class="n">get_suite</span><span class="p">(</span><span class="s1">'extended'</span><span class="p">):</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">scenario</span><span class="p">[</span><span class="s1">'id'</span><span class="p">],</span> <span class="n">scenario</span><span class="p">[</span><span class="s1">'family'</span><span class="p">],</span> <span class="n">scenario</span><span class="p">[</span><span class="s1">'expected_dominant'</span><span class="p">])</span>
+</span></code></pre></div>
+<p>Scenarios in these suites use the conformance format, so they run in the testbench, in the <a href="../../simulation/browser/">browser simulator</a> and in the <a href="../../simulation/carla/">CARLA renderer</a> without conversion. Per-agent <code>model</code> hints (child, wheelchair, e-scooter, cargo bike and so on) change only how the renderer draws an agent.</p>
+<h2 id="extended">extended<a class="headerlink" href="#extended" title="Permanent link">&para;</a></h2>
+<p>Forty-one hand-designed urban conflicts and deliberate negatives in twelve families. Speeds follow published ranges: walking 1.2 to 1.5 m/s, older adults 0.8 to 1.0, wheelchairs 1.0 to 1.3, commuter cyclists 4 to 7, fast road cyclists 8 to 11, e-scooters 5 to 7, cargo bikes 3.5 to 5.5.</p>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th style="text-align: right;">Scenarios</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>turning</code></td>
+<td style="text-align: right;">4</td>
+<td>Turning conflicts</td>
+</tr>
+<tr>
+<td><code>occlusion</code></td>
+<td style="text-align: right;">3</td>
+<td>Occlusion and late emergence</td>
+</tr>
+<tr>
+<td><code>yielding</code></td>
+<td style="text-align: right;">4</td>
+<td>Yielding and braking cyclists</td>
+</tr>
+<tr>
+<td><code>counter-flow</code></td>
+<td style="text-align: right;">2</td>
+<td>Wrong-way and counter-flow riders</td>
+</tr>
+<tr>
+<td><code>shared-space</code></td>
+<td style="text-align: right;">2</td>
+<td>Shared space and sidewalk riding</td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td style="text-align: right;">5</td>
+<td>Groups and platoons</td>
+</tr>
+<tr>
+<td><code>vulnerable</code></td>
+<td style="text-align: right;">4</td>
+<td>Vulnerable road users</td>
+</tr>
+<tr>
+<td><code>micromobility</code></td>
+<td style="text-align: right;">4</td>
+<td>Micromobility</td>
+</tr>
+<tr>
+<td><code>pedestrian-behaviour</code></td>
+<td style="text-align: right;">5</td>
+<td>Pedestrian behaviour</td>
+</tr>
+<tr>
+<td><code>near-miss</code></td>
+<td style="text-align: right;">4</td>
+<td>Near-miss geometry</td>
+</tr>
+<tr>
+<td><code>signal-platoon</code></td>
+<td style="text-align: right;">1</td>
+<td>Signal-phase platoons</td>
+</tr>
+<tr>
+<td><code>negative</code></td>
+<td style="text-align: right;">3</td>
+<td>True negatives</td>
+</tr>
+</tbody>
+</table>
+<p>The dominant state of a run is the most severe state (alert &gt; warning &gt; safe &gt; idle) that the pipeline holds for at least 0.3 s in total over the run. <code>expected_dominant</code> of an extended or stress scenario is the same rule applied to the per-frame labels of <code>compute_ground_truth_danger</code> rather than a judgement, and a test in <code>tests/scenarios/</code> keeps the two in agreement. Scenarios that the default pipeline gets wrong keep their label and carry the tag <code>known-hard</code>: either the dominant state differs from the expected one, or the first alert comes more than 0.5 s after a danger interval begins. Fourteen scenarios carry it across the library: seven false alarms, five late alerts and two in the stress suite. They are the useful ones when you change the pipeline.</p>
+<p>The ground truth is conservative. It labels a comfortable yield, a 2 m tangential pass and the whole ±3 s time-gap sweep of the generators as danger, so a <code>yes</code> in the table below means the pipeline agrees with a cautious reference rather than with a human judgement of the scene.</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>bikeped.scenarios<span class="w"> </span>evaluate<span class="w"> </span>--suite<span class="w"> </span>extended
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">scenario                             dur  ag danger  alert  false lead s (per interval)  dominant expected  ok</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="go">--------------------------------------------------------------------------------------------------------------</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="go">right-hook-across-crosswalk         12.0   2   2.50   3.67   1.27 +1.3                      alert    alert  yes</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="go">left-hook-across-crosswalk          10.6   2   2.63   3.47   0.83 +0.7                      alert    alert  yes</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="go">turn-in-from-cross-street            9.4   2   3.83   3.33   0.00 -0.0                      alert    alert  yes</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="go">wide-turn-clears-pedestrian          8.5   2   0.00   3.13   3.13 -                         alert  warning  NO</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="go">...</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="go">--------------------------------------------------------------------------------------------------------------</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="go">41 scenarios, dominant state matches expected in 34; 23 of 33 danger intervals alerted no later than one frame after onset; false-alert time 33.93 s</span>
+</span></code></pre></div>
+<p><code>evaluate</code> runs <code>decision_testbench.simulate_scenario</code> with ideal perception. The columns are seconds of ground-truth danger, of alert and of false alert, the lead of the first alert over each danger interval (negative means late), and the dominant state against the expected one.</p>
+<!-- Generated by tools/build_docs.py from bikeped.scenarios suite 'extended'. Do not edit. -->
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Scenario</th>
+<th>Family</th>
+<th>Expected</th>
+<th>Duration</th>
+<th>Agents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/right-hook-across-crosswalk.svg" /></td>
+<td>Right Hook Across Crosswalk <code>right-hook-across-crosswalk</code><br><span class="catalog-desc">A cyclist at 5 m/s turns right off the main road through the far end of the crosswalk, where a pedestrian has just stepped off the kerb.</span></td>
+<td>turning</td>
+<td><span class="state state-alert">alert</span></td>
+<td>12.0 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/left-hook-across-crosswalk.svg" /></td>
+<td>Left Hook Across Crosswalk <code>left-hook-across-crosswalk</code><br><span class="catalog-desc">A cyclist turns left across the oncoming lane and sweeps through the near half of the crosswalk while a pedestrian is walking out from that kerb.</span></td>
+<td>turning</td>
+<td><span class="state state-alert">alert</span></td>
+<td>10.6 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/turn-in-from-cross-street.svg" /></td>
+<td>Turn In From Cross Street <code>turn-in-from-cross-street</code><br><span class="catalog-desc">A cyclist comes up the cross street, turns right onto the main road and rides through the middle of the crosswalk as a pedestrian reaches it.</span></td>
+<td>turning</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.4 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/wide-turn-clears-pedestrian.svg" /></td>
+<td>Wide Turn Clears Pedestrian <code>wide-turn-clears-pedestrian</code><br><span class="catalog-desc">A cyclist swings a wide left turn that stays more than 6 m from a pedestrian walking on the far half of the crosswalk.</span></td>
+<td>turning</td>
+<td><span class="state state-warning">warning</span></td>
+<td>8.5 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/steps-out-from-behind-van.svg" /></td>
+<td>Steps Out From Behind Van <code>steps-out-from-behind-van</code><br><span class="catalog-desc">A pedestrian hidden by a parked van is first detected stepping into the road 3.5 m from the kerb line, 1.5 s before a 6 m/s cyclist reaches the crossing point.</span></td>
+<td>occlusion</td>
+<td><span class="state state-alert">alert</span></td>
+<td>10.6 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/bus-stop-crowd-emergence.svg" /></td>
+<td>Bus Stop Crowd Emergence <code>bus-stop-crowd-emergence</code><br><span class="catalog-desc">Two people wait at a bus stop; a third steps out from behind them at a brisk 1.8 m/s straight into the path of a cyclist.</span></td>
+<td>occlusion</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.9 s</td>
+<td>3 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/cyclist-emerges-from-behind-bus.svg" /></td>
+<td>Cyclist Emerges From Behind Bus <code>cyclist-emerges-from-behind-bus</code><br><span class="catalog-desc">A cyclist overtaking a stopped bus is first seen 8 m from the crosswalk at 6 m/s while a pedestrian is crossing in front of the bus.</span></td>
+<td>occlusion</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/cyclist-stops-before-crosswalk.svg" /></td>
+<td>Cyclist Stops Before Crosswalk <code>cyclist-stops-before-crosswalk</code><br><span class="catalog-desc">A cyclist at 5.5 m/s brakes comfortably at 2 m/s^2 to a stop 4 m short of the crosswalk, waits for the pedestrian to clear, then rides on.</span></td>
+<td>yielding</td>
+<td><span class="state state-alert">alert</span></td>
+<td>16.2 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/rolling-yield.svg" /></td>
+<td>Rolling Yield <code>rolling-yield</code><br><span class="catalog-desc">A cyclist slows from 6 m/s to 2 m/s and rolls through the crosswalk after the pedestrian has passed the bike lane.</span></td>
+<td>yielding</td>
+<td><span class="state state-warning">warning</span></td>
+<td>12.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/track-stand-then-go.svg" /></td>
+<td>Track Stand Then Go <code>track-stand-then-go</code><br><span class="catalog-desc">A cyclist balances in place 5 m before the crosswalk while a pedestrian crosses, then sets off once the pedestrian is on the far side.</span></td>
+<td>yielding</td>
+<td><span class="state state-warning">warning</span></td>
+<td>14.7 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/late-hard-braking.svg" /></td>
+<td>Late Hard Braking <code>late-hard-braking</code><br><span class="catalog-desc">A cyclist at 6.5 m/s notices the pedestrian late and brakes hard at 5 m/s^2. The bike stops about a metre from them.</span></td>
+<td>yielding</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/wrong-way-rider.svg" /></td>
+<td>Wrong-Way Rider <code>wrong-way-rider</code><br><span class="catalog-desc">A cyclist rides against traffic towards +x at 5 m/s; the pedestrian checks the usual direction and steps out into the rider.</span></td>
+<td>counter-flow</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/contraflow-lane-pass.svg" /></td>
+<td>Contraflow Lane Pass <code>contraflow-lane-pass</code><br><span class="catalog-desc">A wrong-way cyclist stays in the far contraflow lane and crosses the crosswalk well ahead of the pedestrian, who is still at the opposite kerb.</span></td>
+<td>counter-flow</td>
+<td><span class="state state-warning">warning</span></td>
+<td>13.9 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/sidewalk-rider-head-on.svg" /></td>
+<td>Sidewalk Rider Head-On <code>sidewalk-rider-head-on</code><br><span class="catalog-desc">A cyclist rides along the sidewalk at 4.5 m/s towards a pedestrian walking the other way on the same line.</span></td>
+<td>shared-space</td>
+<td><span class="state state-alert">alert</span></td>
+<td>17.6 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/shared-plaza-slalom.svg" /></td>
+<td>Shared Plaza Slalom <code>shared-plaza-slalom</code><br><span class="catalog-desc">In a shared plaza a cyclist at 4 m/s weaves between two walkers and cuts close in front of a third.</span></td>
+<td>shared-space</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.4 s</td>
+<td>3 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/school-group-crossing.svg" /></td>
+<td>School Group Crossing <code>school-group-crossing</code><br><span class="catalog-desc">Two adults walk a line of six children across at 1.0 m/s; a cyclist at 5 m/s reaches the crosswalk while the group is strung across the lane.</span></td>
+<td>groups</td>
+<td><span class="state state-alert">alert</span></td>
+<td>16.0 s</td>
+<td>2 adult, 6 child, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/cyclist-platoon.svg" /></td>
+<td>Cyclist Platoon <code>cyclist-platoon</code><br><span class="catalog-desc">Four commuters ride in single file 1.2 s apart at 5.5 m/s into a pedestrian who is halfway across.</span></td>
+<td>groups</td>
+<td><span class="state state-alert">alert</span></td>
+<td>11.0 s</td>
+<td>1 adult, 4 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/two-abreast.svg" /></td>
+<td>Two Abreast <code>two-abreast</code><br><span class="catalog-desc">Two cyclists ride side by side at 6 m/s and fill the lane as a pedestrian crosses.</span></td>
+<td>groups</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.8 s</td>
+<td>1 adult, 2 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/pedestrian-couple.svg" /></td>
+<td>Pedestrian Couple <code>pedestrian-couple</code><br><span class="catalog-desc">A couple walks across side by side at 1.3 m/s and a cyclist at 6 m/s rides through their line.</span></td>
+<td>groups</td>
+<td><span class="state state-alert">alert</span></td>
+<td>10.6 s</td>
+<td>2 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/crowd-with-straggler.svg" /></td>
+<td>Crowd With Straggler <code>crowd-with-straggler</code><br><span class="catalog-desc">Five people cross together and clear the lane; a straggler follows 3.5 s later and meets the cyclist the rest of the group avoided.</span></td>
+<td>groups</td>
+<td><span class="state state-alert">alert</span></td>
+<td>14.3 s</td>
+<td>6 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/older-adult-slow-start.svg" /></td>
+<td>Older Adult Slow Start <code>older-adult-slow-start</code><br><span class="catalog-desc">An older pedestrian waits 2 s at the kerb, then crosses at 0.85 m/s and is in the lane when a 5.5 m/s cyclist arrives.</span></td>
+<td>vulnerable</td>
+<td><span class="state state-alert">alert</span></td>
+<td>17.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/wheelchair-mid-crossing-pause.svg" /></td>
+<td>Wheelchair Mid-Crossing Pause <code>wheelchair-mid-crossing-pause</code><br><span class="catalog-desc">A wheelchair user crossing at 1.1 m/s stops for 3 s in the middle of the road; a cyclist rides through the stopping point.</span></td>
+<td>vulnerable</td>
+<td><span class="state state-alert">alert</span></td>
+<td>15.3 s</td>
+<td>1 wheelchair, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/child-darts-back.svg" /></td>
+<td>Child Darts Back <code>child-darts-back</code><br><span class="catalog-desc">A child halfway across turns and runs back at 2.5 m/s for a dropped toy, into the lane the cyclist had counted on being empty.</span></td>
+<td>vulnerable</td>
+<td><span class="state state-alert">alert</span></td>
+<td>19.0 s</td>
+<td>1 child, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/guide-dog-pace.svg" /></td>
+<td>Guide Dog Pace <code>guide-dog-pace</code><br><span class="catalog-desc">A visually impaired pedestrian with a guide dog crosses at a steady 1.0 m/s and cannot see the approaching 6 m/s cyclist.</span></td>
+<td>vulnerable</td>
+<td><span class="state state-alert">alert</span></td>
+<td>13.5 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/e-scooter-weaving.svg" /></td>
+<td>E-Scooter Weaving <code>e-scooter-weaving</code><br><span class="catalog-desc">An e-scooter rider at 6 m/s weaves a metre either side of the lane line and reaches the crosswalk while a pedestrian is in it.</span></td>
+<td>micromobility</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.8 s</td>
+<td>1 adult, 1 escooter</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/e-bike-in-the-door-zone.svg" /></td>
+<td>E-Bike In The Door Zone <code>e-bike-in-the-door-zone</code><br><span class="catalog-desc">A fast e-bike at 10 m/s rides close to parked cars; a pedestrian steps out from between two of them a car length ahead.</span></td>
+<td>micromobility</td>
+<td><span class="state state-alert">alert</span></td>
+<td>10.3 s</td>
+<td>1 adult, 1 ebike</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/cargo-bike-long-stop.svg" /></td>
+<td>Cargo Bike Long Stop <code>cargo-bike-long-stop</code><br><span class="catalog-desc">A loaded cargo bike at 5 m/s brakes at only 1.5 m/s^2 and needs most of the approach to stop. It comes to rest on the crosswalk next to the pedestrian.</span></td>
+<td>micromobility</td>
+<td><span class="state state-alert">alert</span></td>
+<td>10.5 s</td>
+<td>1 adult, 1 cargo_bike</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/delivery-rider-cuts-corner.svg" /></td>
+<td>Delivery Rider Cuts Corner <code>delivery-rider-cuts-corner</code><br><span class="catalog-desc">A delivery rider on an e-bike at 7 m/s cuts the corner from the cross street, diagonally through the crosswalk.</span></td>
+<td>micromobility</td>
+<td><span class="state state-alert">alert</span></td>
+<td>10.3 s</td>
+<td>1 adult, 1 ebike</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/hesitation-at-the-kerb.svg" /></td>
+<td>Hesitation At The Kerb <code>hesitation-at-the-kerb</code><br><span class="catalog-desc">A pedestrian steps off the kerb, stops for 1.5 s unsure of the cyclist, then goes anyway as the cyclist arrives.</span></td>
+<td>pedestrian-behaviour</td>
+<td><span class="state state-alert">alert</span></td>
+<td>11.1 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/turns-back-mid-crossing.svg" /></td>
+<td>Turns Back Mid-Crossing <code>turns-back-mid-crossing</code><br><span class="catalog-desc">A pedestrian reaches the centre line, changes their mind and walks back towards the kerb they came from, into the cyclist&#x27;s lane.</span></td>
+<td>pedestrian-behaviour</td>
+<td><span class="state state-alert">alert</span></td>
+<td>11.1 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/diagonal-runner.svg" /></td>
+<td>Diagonal Runner <code>diagonal-runner</code><br><span class="catalog-desc">A runner crosses diagonally at 3.5 m/s, outside the crosswalk lines, and meets a 6 m/s cyclist in the lane.</span></td>
+<td>pedestrian-behaviour</td>
+<td><span class="state state-alert">alert</span></td>
+<td>6.6 s</td>
+<td>1 runner, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/phone-distracted-diagonal.svg" /></td>
+<td>Phone-Distracted Diagonal <code>phone-distracted-diagonal</code><br><span class="catalog-desc">Looking at a phone, a pedestrian drifts diagonally across at 0.9 m/s and spends a long time in the lane.</span></td>
+<td>pedestrian-behaviour</td>
+<td><span class="state state-alert">alert</span></td>
+<td>18.4 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/mid-block-crossing.svg" /></td>
+<td>Mid-Block Crossing <code>mid-block-crossing</code><br><span class="catalog-desc">A pedestrian crosses 10 m upstream of the crosswalk, between gaps in traffic, and the cyclist meets them before reaching the marked crossing.</span></td>
+<td>pedestrian-behaviour</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.2 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/passes-in-front.svg" /></td>
+<td>Passes In Front <code>passes-in-front</code><br><span class="catalog-desc">The cyclist crosses the pedestrian&#x27;s line about a second before the pedestrian reaches it, a margin of a few metres.</span></td>
+<td>near-miss</td>
+<td><span class="state state-alert">alert</span></td>
+<td>9.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/passes-behind.svg" /></td>
+<td>Passes Behind <code>passes-behind</code><br><span class="catalog-desc">The cyclist rides through the crosswalk 2.5 m behind a pedestrian who has already crossed the lane.</span></td>
+<td>near-miss</td>
+<td><span class="state state-warning">warning</span></td>
+<td>10.7 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/tangential-pass.svg" /></td>
+<td>Tangential Pass <code>tangential-pass</code><br><span class="catalog-desc">A cyclist passes 2 m to the side of a pedestrian standing at the edge of the lane, without changing course.</span></td>
+<td>near-miss</td>
+<td><span class="state state-alert">alert</span></td>
+<td>7.5 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/parallel-never-converges.svg" /></td>
+<td>Parallel Never Converges <code>parallel-never-converges</code><br><span class="catalog-desc">A cyclist rides along the road while a pedestrian walks the same way on the sidewalk 7 m to the side; the paths never meet.</span></td>
+<td>near-miss</td>
+<td><span class="state state-warning">warning</span></td>
+<td>13.4 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/green-wave-burst.svg" /></td>
+<td>Green Wave Burst <code>green-wave-burst</code><br><span class="catalog-desc">Five cyclists waiting at a light set off together when it turns green and meet a pedestrian who started crossing late.</span></td>
+<td>signal-platoon</td>
+<td><span class="state state-alert">alert</span></td>
+<td>13.2 s</td>
+<td>1 adult, 5 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/far-lane-moving-away.svg" /></td>
+<td>Far Lane Moving Away <code>far-lane-moving-away</code><br><span class="catalog-desc">A cyclist just past the crosswalk rides away along the far lane while a pedestrian starts crossing behind them.</span></td>
+<td>negative</td>
+<td><span class="state state-warning">warning</span></td>
+<td>10.8 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/fast-pass-after-clearing.svg" /></td>
+<td>Fast Pass After Clearing <code>fast-pass-after-clearing</code><br><span class="catalog-desc">A road cyclist at 9 m/s goes through the crosswalk a second after the pedestrian has stepped onto the far kerb.</span></td>
+<td>negative</td>
+<td><span class="state state-warning">warning</span></td>
+<td>11.9 s</td>
+<td>1 adult, 1 road_bike</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/waits-at-the-kerb.svg" /></td>
+<td>Waits At The Kerb <code>waits-at-the-kerb</code><br><span class="catalog-desc">A pedestrian stands on the kerb the whole time and never steps out while a cyclist passes at 7 m/s.</span></td>
+<td>negative</td>
+<td><span class="state state-warning">warning</span></td>
+<td>8.5 s</td>
+<td>1 adult, 1 bicycle</td>
+</tr>
+</tbody>
+</table>
+<h2 id="stress">stress<a class="headerlink" href="#stress" title="Permanent link">&para;</a></h2>
+<p>Eight dense scenes with 12 to 24 agents in view at once, for throughput and tracker-load testing. Positions and start times are jittered with fixed seeds, so the suite is the same on every run. Two of them carry <code>known-hard</code>.</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="gp">$ </span>python<span class="w"> </span>-m<span class="w"> </span>bikeped.scenarios<span class="w"> </span>evaluate<span class="w"> </span>--suite<span class="w"> </span>stress
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">...</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">sidewalk-tour-group                 33.5  16   0.00   5.63   5.63 -                         alert  warning  NO</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="go">crosswalk-without-cyclists          21.8  24   0.00   0.00   0.00 -                          safe     safe  yes</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="go">...</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="go">8 scenarios, dominant state matches expected in 7; 4 of 7 danger intervals alerted no later than one frame after onset; false-alert time 8.37 s</span>
+</span></code></pre></div>
+<!-- Generated by tools/build_docs.py from bikeped.scenarios suite 'stress'. Do not edit. -->
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Scenario</th>
+<th>Family</th>
+<th>Expected</th>
+<th>Duration</th>
+<th>Agents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/rush-hour-crosswalk.svg" /></td>
+<td>Rush Hour Crosswalk <code>rush-hour-crosswalk</code><br><span class="catalog-desc">Twelve pedestrians cross in both directions over 8 s while six cyclists ride through from both ends.</span></td>
+<td>dense</td>
+<td><span class="state state-alert">alert</span></td>
+<td>19.5 s</td>
+<td>12 adult, 6 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/stadium-exit.svg" /></td>
+<td>Stadium Exit <code>stadium-exit</code><br><span class="catalog-desc">Twenty people leave an event and flood the crosswalk in one direction as three cyclists arrive.</span></td>
+<td>dense</td>
+<td><span class="state state-alert">alert</span></td>
+<td>17.5 s</td>
+<td>20 adult, 3 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/bike-commute-peak.svg" /></td>
+<td>Bike Commute Peak <code>bike-commute-peak</code><br><span class="catalog-desc">Sixteen cyclists in a steady stream at commuter speeds and four pedestrians picking their way across.</span></td>
+<td>dense</td>
+<td><span class="state state-alert">alert</span></td>
+<td>19.6 s</td>
+<td>4 adult, 16 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/wet-night-mixed-traffic.svg" /></td>
+<td>Wet Night Mixed Traffic <code>wet-night-mixed-traffic</code><br><span class="catalog-desc">Ten pedestrians and eight riders on a wet night; some riders go as fast as e-bikes.</span></td>
+<td>dense</td>
+<td><span class="state state-alert">alert</span></td>
+<td>19.0 s</td>
+<td>10 adult, 8 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/sidewalk-tour-group.svg" /></td>
+<td>Sidewalk Tour Group <code>sidewalk-tour-group</code><br><span class="catalog-desc">A tour group of ten walks along the sidewalk while six cyclists pass on the road; nobody crosses.</span></td>
+<td>dense</td>
+<td><span class="state state-warning">warning</span></td>
+<td>33.5 s</td>
+<td>10 adult, 6 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/crosswalk-without-cyclists.svg" /></td>
+<td>Crosswalk Without Cyclists <code>crosswalk-without-cyclists</code><br><span class="catalog-desc">Twenty-four pedestrians cross in both directions and no cyclist appears.</span></td>
+<td>dense</td>
+<td><span class="state state-safe">safe</span></td>
+<td>21.8 s</td>
+<td>24 adult</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/group-ride-through-crowd.svg" /></td>
+<td>Group Ride Through Crowd <code>group-ride-through-crowd</code><br><span class="catalog-desc">A group ride of ten passes in two lines through a crosswalk with eight pedestrians on it.</span></td>
+<td>dense</td>
+<td><span class="state state-alert">alert</span></td>
+<td>15.5 s</td>
+<td>8 adult, 10 bicycle</td>
+</tr>
+<tr>
+<td><img alt="" class="scenario-thumb" loading="lazy" src="../../assets/scenarios/market-day-shared-street.svg" /></td>
+<td>Market Day Shared Street <code>market-day-shared-street</code><br><span class="catalog-desc">A shared street with fourteen pedestrians wandering across at random angles and six slow cyclists.</span></td>
+<td>dense</td>
+<td><span class="state state-alert">alert</span></td>
+<td>25.9 s</td>
+<td>14 adult, 6 bicycle</td>
+</tr>
+</tbody>
+</table>
+<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../conformance/">Conformance suite</a></li>
+<li><a href="../generators/">Generators</a></li>
+<li><a href="../../reference/formats/">Scenario format reference</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../conformance/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Conformance suite">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Conformance suite
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../authoring/" class="md-footer__link md-footer__link--next" aria-label="Next: Authoring">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Authoring
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Mehmet Kerem Turkcan. Companion code for arXiv 2604.17046.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/mkturkcan/bikeped" target="_blank" rel="noopener" title="Source on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://arxiv.org/abs/2604.17046" target="_blank" rel="noopener" title="Paper on arXiv" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0h149.5c17 0 33.3 6.7 45.3 18.7l106.5 106.6c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64zm208-5.5V152c0 13.3 10.7 24 24 24h93.5zM120 256c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://huggingface.co/datasets/mehmetkeremturkcan/bikeped" target="_blank" rel="noopener" title="Dataset on Hugging Face" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M448 205.8c-14.8 9.8-31.8 17.7-49.5 24-47 16.8-108.7 26.2-174.5 26.2s-127.6-9.5-174.5-26.2c-17.6-6.3-34.7-14.2-49.5-24V288c0 44.2 100.3 80 224 80s224-35.8 224-80zm0-77.8V80c0-44.2-100.3-80-224-80S0 35.8 0 80v48c0 44.2 100.3 80 224 80s224-35.8 224-80m-49.5 261.8C351.6 406.5 289.9 416 224 416s-127.6-9.5-174.5-26.2c-17.6-6.3-34.7-14.2-49.5-24V432c0 44.2 100.3 80 224 80s224-35.8 224-80v-66.2c-14.8 9.8-31.8 17.7-49.5 24"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

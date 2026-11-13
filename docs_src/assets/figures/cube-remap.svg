@@ -1,0 +1,31 @@
+<svg class="bp-fig" viewBox="0 0 760 300" role="img" aria-labelledby="cube-remap-title" xmlns="http://www.w3.org/2000/svg">
+<title id="cube-remap-title">Five cube faces are remapped through the calibrated lens model into one fisheye frame</title>
+<defs><marker id="cube-remap-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" class="f-muted"/></marker><clipPath id="cube-remap-clip"><rect x="548" y="96" width="192" height="108"/></clipPath></defs>
+<text class="t-title" x="28" y="32">Cube faces</text>
+<rect class="box" x="90" y="58" width="60" height="60" rx="4"/>
+<text class="t-small t-mid t-muted" x="120" y="92">up</text>
+<rect class="box" x="28" y="120" width="60" height="60" rx="4"/>
+<text class="t-small t-mid t-muted" x="58" y="154">left</text>
+<rect class="box-accent" x="90" y="120" width="60" height="60" rx="4"/>
+<text class="t-small t-mid" x="120" y="154">front</text>
+<rect class="box" x="152" y="120" width="60" height="60" rx="4"/>
+<text class="t-small t-mid t-muted" x="182" y="154">right</text>
+<rect class="box" x="90" y="182" width="60" height="60" rx="4"/>
+<text class="t-small t-mid t-muted" x="120" y="216">down</text>
+<text class="t-small t-mid t-muted" x="120" y="268">one 90° pinhole camera per face</text>
+<line class="line" x1="214" y1="150" x2="259" y2="150" marker-end="url(#cube-remap-arrow)"/>
+<text class="t-title" x="262" y="32">Lens model</text>
+<rect class="box-accent" x="262" y="96" width="236" height="108" rx="10"/>
+<text class="t-small t-muted" x="278" y="122">θ: angle from the optical axis</text>
+<text class="t-mono" x="278" y="154">r = f (θ + k1 θ³ + k2 θ⁵)</text>
+<text class="t-small t-faint" x="278" y="186">f, k1, k2 from camera_calibration.json</text>
+<text class="t-small t-mono t-faint t-mid" x="380" y="232">FisheyeRemap.remap(face_images)</text>
+<line class="line" x1="498" y1="150" x2="545" y2="150" marker-end="url(#cube-remap-arrow)"/>
+<text class="t-title" x="548" y="32">Fisheye frame</text>
+<circle class="f-cyan-soft" cx="644" cy="150" r="87.5" clip-path="url(#cube-remap-clip)"/>
+<circle class="line-faint dash f-none" cx="644" cy="150" r="87.5"/>
+<rect class="line f-none" x="548" y="96" width="192" height="108"/>
+<circle class="f-cyan" cx="644" cy="150" r="2.5"/>
+<text class="t-small t-mid t-muted" x="644" y="262">3840 × 2160 sensor crop</text>
+<text class="t-small t-mid t-faint" x="644" y="280">3500 px image circle, clipped top and bottom</text>
+</svg>

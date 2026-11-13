@@ -1,0 +1,37 @@
+<svg class="bp-fig" viewBox="0 0 760 320" role="img" aria-labelledby="fisheye-geometry-title" xmlns="http://www.w3.org/2000/svg">
+<title id="fisheye-geometry-title">Side view of a ray from the camera to the ground, and where that ray lands in the fisheye image</title>
+<text class="t-small t-muted" x="20" y="28">side view</text>
+<rect class="ground" x="20" y="260" width="410" height="8" rx="2"/>
+<line class="line-strong" x1="60" y1="260" x2="60" y2="90"/>
+<line class="line-faint" x1="36" y1="90" x2="36" y2="260"/>
+<line class="line-faint" x1="30" y1="90" x2="42" y2="90"/>
+<line class="line-faint" x1="30" y1="260" x2="42" y2="260"/>
+<text class="t-mono t-end" x="26" y="180">h</text>
+<line class="line-faint dash" x1="60" y1="90" x2="424" y2="90"/>
+<text class="t-small t-muted t-end" x="424" y="80">optical axis, pitch 0</text>
+<line class="line s-amber" x1="60" y1="90" x2="330" y2="260"/>
+<path class="line f-none" d="M124 90A64 64 0 0 1 114.2 124.1"/>
+<text class="t-mono" x="134" y="114">θ</text>
+<circle class="f-amber" cx="60" cy="90" r="6"/>
+<circle class="f-cyan" cx="330" cy="260" r="5"/>
+<text class="t-small t-muted" x="342" y="250">ground point</text>
+<line class="line-faint" x1="60" y1="284" x2="330" y2="284"/>
+<line class="line-faint" x1="60" y1="278" x2="60" y2="290"/>
+<line class="line-faint" x1="330" y1="278" x2="330" y2="290"/>
+<text class="t-small t-mono t-mid" x="195" y="304">d = h / tan θ</text>
+<text class="t-small t-muted t-mid" x="605" y="28">3500 × 3500 crop</text>
+<circle class="line-faint dash f-none" cx="605" cy="170" r="120"/>
+<path class="box-cyan" d="M510.5 96H699.5A120 120 0 0 1 699.5 244H510.5A120 120 0 0 1 510.5 96z"/>
+<text class="t-small t-faint t-mid" x="605" y="80">off sensor</text>
+<text class="t-small t-faint t-mid" x="605" y="270">off sensor</text>
+<text class="t-small t-muted t-end" x="754" y="92">row 670</text>
+<text class="t-small t-muted t-end" x="754" y="258">row 2829</text>
+<line class="line s-amber" x1="605" y1="170" x2="665.6" y2="135"/>
+<circle class="f-amber" cx="665.6" cy="135" r="4.5"/>
+<circle class="f-text" cx="605" cy="170" r="2.5"/>
+<text class="t-small t-mono" x="676" y="132">(u, v)</text>
+<text class="t-small t-mono" x="630" y="172">r = f θ</text>
+<text class="t-small t-muted t-mid" x="605" y="192">(cx, cy)</text>
+<text class="t-small t-cyan t-mid" x="605" y="230">on sensor</text>
+<text class="t-small t-muted t-mid" x="605" y="310">image circle, R = 1750 px</text>
+</svg>
